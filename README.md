@@ -1,4 +1,4 @@
-# Image V.1: 15 alat gambar di browser + AI (GPU server via OpenRouter)
+# Image V.1: 16 alat gambar di browser + AI (GPU server via OpenRouter)
 
 Siap dideploy ke **Vercel** (paket Hobby gratis). Semua pemrosesan gambar non-AI terjadi di browser;
 server hanya dipakai untuk proxy OpenRouter (agar API key aman) dan screenshot URL.
@@ -43,6 +43,7 @@ Atau `npx vercel dev` untuk meniru lingkungan Vercel. Screenshot lokal memakai C
 |---|---|---|
 | Pas foto | MediaPipe (wajib 1 wajah) + IS-Net hapus latar; 2×3, 3×4, 4×6, paspor; latar merah/biru/putih; lembar 4R; 300 DPI | - |
 | Gaya Korea | MediaPipe (wajib 1 wajah) | Model gambar: gaya oppa / K-beauty, identitas wajah dijaga |
+| Cerah & Awet Muda | Masker kulit YCbCr × elips wajah, peredaman detail (kerut), angkat luminans, gamma otomatis, warp pipi/rahang (kurus/gemuk) | Model gambar: cerah, kerut, lebih muda, kurus/gemuk wajah & badan (toggle bebas) |
 | Kompres | Canvas + UPNG (PNG), gifuct + gifenc (GIF animasi) | - |
 | Ubah ukuran | Canvas, downscale bertahap | - |
 | Potong | Cropper.js + preset media sosial | Model vision: potong pintar |

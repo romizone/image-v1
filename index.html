@@ -165,6 +165,18 @@ input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-rad
 .swatches{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
 .swatch[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:2px}
+.tg,.field label.tg{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.tg:last-of-type{border-bottom:none}
+.tg input{position:absolute;opacity:0;width:1px;height:1px}
+.tg .sw{display:block;flex:none;width:40px;height:24px;border-radius:999px;background:#C9CCD9;position:relative;transition:background .15s}
+.tg .sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+.tg input:checked + .sw{background:var(--c-optimize)}
+.tg input:checked + .sw::after{transform:translateX(16px)}
+.tg input:focus-visible + .sw{outline:3px solid var(--ink);outline-offset:2px}
+.tg .tx b{display:block;font-size:15px}
+.tg .tx span{display:block;font-size:13px;color:var(--muted);line-height:1.35}
+.range-ends{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:2px}
+.cmp-hold{position:absolute;right:14px;bottom:14px;background:rgba(30,26,60,.82);color:#fff;border:none;border-radius:999px;padding:8px 14px;font-weight:600;font-size:13px;touch-action:none;user-select:none;-webkit-user-select:none}
 .ai-box{border:1px solid var(--line);border-radius:var(--r-md);padding:14px;margin:18px 0;background:#F7F8FC}
 .ai-box h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center;gap:8px}
 .ai-box h4::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--sun)}
@@ -629,6 +641,7 @@ const ICONS = {
   pasfoto: I('<rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 19c.8-2.5 2.7-4 5-4s4.2 1.5 5 4"/>'),
   korea: I('<circle cx="11" cy="13" r="7"/><path d="M8.5 15.5s1 1.3 2.5 1.3 2.5-1.3 2.5-1.3M9 11.5h.01M13 11.5h.01"/><path d="M19 1.5l.8 1.8 1.7.7-1.7.8L19 6.5l-.8-1.7-1.7-.8 1.7-.7z"/>'),
   blur: I('<circle cx="12" cy="12" r="9"/><path d="M5 9h14M4 12h16M5 15h14M8 6h8M8 18h8"/>'),
+  glow: I('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
 };
 const CATS = { optimize: 'Optimasi', create: 'Buat', modify: 'Ubah', convert: 'Konversi', security: 'Keamanan' };
 
@@ -1562,8 +1575,228 @@ tool({
   },
 });
 
+
+// ---------------- 16. Cerah & Awet Muda (lokal atau AI) ----------------
+/** blur kanvas; fallback turun-naik skala untuk browser tanpa ctx.filter */
+function blurCanvas(src, r) {
+  const [c, x] = makeCanvas(src.width, src.height);
+  if (r < 0.5) { x.drawImage(src, 0, 0); return c; }
+  if ('filter' in x) { x.filter = `blur(${r}px)`; x.drawImage(src, 0, 0); x.filter = 'none'; return c; }
+  const k = Math.max(2, r / 1.5); const [sm, sx] = makeCanvas(src.width / k, src.height / k);
+  sx.drawImage(src, 0, 0, sm.width, sm.height); x.drawImage(sm, 0, 0, c.width, c.height); return c;
+}
+/** Float32Array 0..1 -> dihaluskan dengan blur kanvas */
+function blurMask(mask, W, H, r) {
+  const [c, x] = makeCanvas(W, H); const d = x.createImageData(W, H);
+  for (let i = 0; i < mask.length; i++) { const v = mask[i] * 255; d.data[i * 4] = d.data[i * 4 + 1] = d.data[i * 4 + 2] = v; d.data[i * 4 + 3] = 255; }
+  x.putImageData(d, 0, 0); const b = blurCanvas(c, r).getContext('2d').getImageData(0, 0, W, H).data;
+  const out = new Float32Array(W * H); for (let i = 0; i < out.length; i++) out[i] = b[i * 4] / 255; return out;
+}
+const smooth01 = (a, b, v) => { const t = Math.min(1, Math.max(0, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
+/** peluang warna kulit dari YCbCr (lunak, berbagai warna kulit) */
+function skinProb(r, g, b) {
+  const y = 0.299 * r + 0.587 * g + 0.114 * b; if (y < 35) return 0;
+  const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b, cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+  return smooth01(70, 80, cb) * (1 - smooth01(128, 138, cb)) * smooth01(128, 138, cr) * (1 - smooth01(172, 182, cr));
+}
+/**
+ * Retus lokal. faces: kotak wajah pada skala gambar asli; k = skala kanvas kerja terhadap asli.
+ * o = { bright, face, wrinkle, young, shape (-1 gemuk .. +1 kurus), level }
+ */
+function retouchLocal(img, faces, k, o) {
+  const [W0, H0] = dims(img); const W = Math.max(1, Math.round(W0 * k)), H = Math.max(1, Math.round(H0 * k));
+  let [c, x] = makeCanvas(W, H); x.drawImage(img, 0, 0, W, H);
+  const F = faces.map(f => ({ x: f.x * k, y: f.y * k, w: f.w * k, h: f.h * k }));
+  const L = { natural: 0.6, sedang: 1, kuat: 1.4 }[o.level] || 1;
+  const faceSize = F.length ? Math.max(...F.map(f => f.w)) : Math.min(W, H) * 0.3;
+
+  // 1. Kurus / gemuk: tarik pipi dan rahang ke tengah (kurus) atau dorong keluar (gemuk)
+  if (o.shape && F.length) {
+    const src = x.getImageData(0, 0, W, H); const sd = src.data; const out = x.createImageData(W, H); const od = out.data; od.set(sd);
+    for (const f of F) {
+      const cx = f.x + f.w / 2, cy = f.y + f.h * 0.72, rx = f.w * 0.95, ry = f.h * 0.95; const amt = o.shape * 0.16;
+      const x0 = Math.max(0, Math.floor(cx - rx)), x1 = Math.min(W - 1, Math.ceil(cx + rx)), y0 = Math.max(0, Math.floor(cy - ry)), y1 = Math.min(H - 1, Math.ceil(cy + ry));
+      for (let py = y0; py <= y1; py++) for (let px = x0; px <= x1; px++) {
+        const dx = (px - cx) / rx, dy = (py - cy) / ry, r2 = dx * dx + dy * dy; if (r2 >= 1) continue;
+        const fall = (1 - r2) * (1 - r2); const sx = cx + (px - cx) * (1 + amt * fall);
+        const xi = Math.floor(sx), t = sx - xi; if (xi < 0 || xi >= W - 1) continue;
+        const a = (py * W + xi) * 4, o4 = (py * W + px) * 4;
+        for (let ch = 0; ch < 4; ch++) od[o4 + ch] = sd[a + ch] * (1 - t) + sd[a + 4 + ch] * t;
+      }
+    }
+    x.putImageData(out, 0, 0);
+  }
+
+  const needSkin = o.face || o.wrinkle || o.young;
+  if (needSkin) {
+    const im = x.getImageData(0, 0, W, H); const p = im.data; const N = W * H;
+    // masker: kulit (warna) x area wajah (elips lunak). Tanpa wajah terdeteksi: kulit di seluruh foto.
+    let mask = new Float32Array(N);
+    for (let i = 0; i < N; i++) mask[i] = skinProb(p[i * 4], p[i * 4 + 1], p[i * 4 + 2]);
+    if (F.length) {
+      const area = new Float32Array(N);
+      for (const f of F) {
+        const cx = f.x + f.w / 2, cy = f.y + f.h * 0.45, rx = f.w * 0.78, ry = f.h * 1.05;
+        const x0 = Math.max(0, Math.floor(cx - rx)), x1 = Math.min(W - 1, Math.ceil(cx + rx)), y0 = Math.max(0, Math.floor(cy - ry)), y1 = Math.min(H - 1, Math.ceil(cy + ry));
+        for (let py = y0; py <= y1; py++) for (let px = x0; px <= x1; px++) {
+          const dx = (px - cx) / rx, dy = (py - cy) / ry; const v = 1 - smooth01(0.65, 1, Math.sqrt(dx * dx + dy * dy)); const i = py * W + px; if (v > area[i]) area[i] = v;
+        }
+      }
+      for (let i = 0; i < N; i++) mask[i] *= area[i];
+    }
+    mask = blurMask(mask, W, H, Math.max(1.5, faceSize * 0.02));
+
+    // 2. Hilangkan kerut / bikin muda: pisahkan detail (asli - blur), redam detail kecil dan garis gelap
+    if (o.wrinkle || o.young) {
+      const strength = Math.min(1, (o.young ? 0.8 : 0.55) * L);
+      const rad = Math.max(1.5, faceSize * (o.young ? 0.028 : 0.02));
+      const bl = blurCanvas(c, rad).getContext('2d').getImageData(0, 0, W, H).data;
+      for (let i = 0; i < N; i++) {
+        const m = mask[i]; if (m < 0.02) continue; const j = i * 4;
+        const dr = p[j] - bl[j], dg = p[j + 1] - bl[j + 1], db = p[j + 2] - bl[j + 2];
+        const dl = 0.299 * dr + 0.587 * dg + 0.114 * db;
+        // tepi kuat (mata, alis, bibir) dipertahankan; kerut = garis lebih gelap dari sekitarnya, diredam lebih kuat
+        const keep = dl < 0 ? smooth01(28, 70, -dl) : smooth01(14, 40, dl);
+        const kk = m * strength * (1 - keep) * 0.78;
+        p[j] -= dr * kk; p[j + 1] -= dg * kk; p[j + 2] -= db * kk;
+      }
+      if (o.young) { // kilau lembut dan mengangkat bayangan halus (kantung mata, garis senyum)
+        for (let i = 0; i < N; i++) {
+          const m = mask[i]; if (m < 0.02) continue; const j = i * 4; const lift = 0.07 * L * m;
+          for (let ch = 0; ch < 3; ch++) { const v = p[j + ch] / 255; p[j + ch] = 255 * (v + lift * v * (1 - v) * 1.6); }
+        }
+      }
+    }
+    // 3. Cerahkan wajah: angkat luminans kulit, rona tetap
+    if (o.face) {
+      const a = 0.2 * L;
+      for (let i = 0; i < N; i++) {
+        const m = mask[i]; if (m < 0.02) continue; const j = i * 4;
+        const l = (0.299 * p[j] + 0.587 * p[j + 1] + 0.114 * p[j + 2]) / 255; if (l <= 0) continue;
+        const nl = l + a * m * l * (1 - l) * 1.3 + 0.02 * a * m; const r = Math.min(1.45, nl / l);
+        p[j] = Math.min(255, p[j] * r); p[j + 1] = Math.min(255, p[j + 1] * r); p[j + 2] = Math.min(255, p[j + 2] * r * 1.01);
+      }
+    }
+    x.putImageData(im, 0, 0);
+  }
+
+  // 4. Cerahkan foto: gamma otomatis menuju luminans rata-rata ~0,5 plus angkat bayangan
+  if (o.bright) {
+    const im = x.getImageData(0, 0, W, H); const p = im.data; let sum = 0, n = 0;
+    for (let i = 0; i < p.length; i += 16) { sum += (0.299 * p[i] + 0.587 * p[i + 1] + 0.114 * p[i + 2]) / 255; n++; }
+    const mean = Math.min(0.9, Math.max(0.05, sum / n)); const target = 0.5 + 0.04 * L;
+    const g = Math.min(1, Math.max(0.55, Math.log(target) / Math.log(mean))); const mix = Math.min(1, 0.55 * L);
+    const lut = new Uint8ClampedArray(256);
+    for (let v = 0; v < 256; v++) {
+      const t = v / 255; let u = Math.pow(t, g); u += 0.12 * L * t * (1 - t) * (1 - t); // angkat bayangan
+      lut[v] = 255 * (t + (u - t) * mix);
+    }
+    for (let i = 0; i < p.length; i += 4) { p[i] = lut[p[i]]; p[i + 1] = lut[p[i + 1]]; p[i + 2] = lut[p[i + 2]]; }
+    x.putImageData(im, 0, 0);
+  }
+  return c;
+}
+function glowPrompt(o) {
+  const lvl = { natural: 'subtle and natural', sedang: 'clearly visible but realistic', kuat: 'strong, while staying photorealistic' }[o.level];
+  const shape = o.shape > 0 ? `- Body shape: make the person look slimmer (face and body), amount ${Math.round(o.shape * 100)}% of a noticeable change: slimmer cheeks and jawline, less double chin, slimmer arms and waist if visible. Keep natural anatomy and background lines straight.`
+    : o.shape < 0 ? `- Body shape: make the person look fuller and healthier (face and body), amount ${Math.round(-o.shape * 100)}% of a noticeable change: fuller cheeks, slightly broader face and body. Keep natural anatomy and background lines straight.` : '';
+  return [
+    'Edit this photo of a real person.',
+    'IDENTITY LOCK (highest priority): keep the exact same person, instantly recognizable. Keep identical eye shape and spacing, eyelids, nose, lips, eyebrow shape, ears, ethnicity and gender. Do not swap or replace the face. Keep the same pose, expression, gaze, clothing, framing and composition.',
+    `Apply only these changes, intensity ${lvl}:`,
+    o.bright ? '- Photo: brighter, well-exposed image with lifted shadows and clean natural colors.' : '',
+    o.face ? '- Face: brighter, more radiant and even skin tone on the face; remove dullness and uneven dark patches; keep the natural skin color family.' : '',
+    o.wrinkle ? '- Skin: remove wrinkles, fine lines, crow\'s feet and forehead lines; reduce blemishes; keep natural pores and texture, no plastic look.' : '',
+    o.young ? '- Age: make the person look about 8 to 12 years younger: firmer skin, reduced nasolabial folds, no under-eye bags or dark circles, fewer age spots, fuller healthy look. Same person, just younger.' : '',
+    shape,
+    'Photorealistic photo, high detail, not a painting, not a cartoon.',
+  ].filter(Boolean).join('\n');
+}
+tool({
+  id: 'cerah-muda', cat: 'create', icon: 'glow', name: 'Cerah & Awet Muda', multiple: false, mode: 'canvas', ai: true,
+  accept: 'image/*,.heic,.heif',
+  desc: 'Cerahkan foto dan wajah, hilangkan kerut, bikin lebih muda, kurus atau gemuk. Pilih diproses di browser atau dengan AI.',
+  action: 'Terapkan',
+  async mount(ctx) {
+    const img = await fileToImage(ctx.files[0].file); const [W, H] = dims(img);
+    const st = ctx.state = { img, faces: [], mode: 'local' };
+    ctx.main.innerHTML = `<div class="stage" style="position:relative"><canvas id="cm-c" aria-label="Pratinjau hasil"></canvas><button type="button" class="cmp-hold" id="cm-hold">Tahan untuk lihat asli</button></div>`;
+    const T = (id, b, s, on) => `<label class="tg"><input type="checkbox" id="${id}" ${on ? 'checked' : ''}><span class="sw"></span><span class="tx"><b>${b}</b><span>${s}</span></span></label>`;
+    ctx.side.innerHTML = `<div id="cm-face" class="face-status">Mencari wajah...</div>
+      <div class="field"><span class="lbl">Diproses dengan</span><div class="seg" id="cm-mode"><button type="button" data-v="local" aria-pressed="true">Tanpa AI (gratis)</button><button type="button" data-v="ai" aria-pressed="false">AI (GPU server)</button></div>
+      <small class="note" id="cm-mnote">Semua diproses di browser Anda. Foto tidak dikirim ke mana pun.</small></div>
+      <div class="field">
+        ${T('cm-bright', 'Cerahkan foto', 'Eksposur dan bayangan diangkat otomatis', true)}
+        ${T('cm-face-on', 'Cerahkan wajah', 'Kulit wajah lebih cerah dan merata', true)}
+        ${T('cm-wrinkle', 'Hilangkan kerut', 'Garis halus dan kerut disamarkan, tekstur kulit tetap', true)}
+        ${T('cm-young', 'Bikin lebih muda', 'Kulit lebih kencang, kantung mata dan garis senyum dikurangi', false)}
+      </div>
+      <div class="field"><label for="cm-shape">Bentuk wajah: <span id="cm-shape-v">normal</span></label><input type="range" id="cm-shape" min="-100" max="100" step="5" value="0">
+        <div class="range-ends"><span>&larr; Gemukin</span><span>Kurusin &rarr;</span></div><small class="note" id="cm-shape-n">Tanpa AI: pipi dan rahang dibuat lebih tirus atau berisi. Mode AI juga mengubah badan.</small></div>
+      <div class="field"><span class="lbl">Intensitas</span><div class="seg" id="cm-level"><button type="button" data-v="natural" aria-pressed="false">Natural</button><button type="button" data-v="sedang" aria-pressed="true">Sedang</button><button type="button" data-v="kuat" aria-pressed="false">Kuat</button></div></div>
+      <label class="check"><input type="checkbox" id="cm-ba" checked> Sertakan gambar sebelum–sesudah</label>`;
+    const cv = $('#cm-c'); const pk = Math.min(1, 1000 / Math.max(W, H)); let preview = null, timer = 0;
+    const opts = () => ({ bright: $('#cm-bright').checked, face: $('#cm-face-on').checked, wrinkle: $('#cm-wrinkle').checked, young: $('#cm-young').checked, shape: +$('#cm-shape').value / 100, level: segVal($('#cm-level')) });
+    ctx.opts = opts;
+    const show = (c) => { cv.width = c.width; cv.height = c.height; cv.getContext('2d').drawImage(c, 0, 0); };
+    const original = () => { const [c, x] = makeCanvas(W * pk, H * pk); x.drawImage(img, 0, 0, c.width, c.height); return c; };
+    const draw = () => {
+      if (st.mode === 'ai') { preview = null; return show(original()); }
+      clearTimeout(timer); timer = setTimeout(() => { preview = retouchLocal(img, st.faces, pk, opts()); show(preview); }, 60);
+    };
+    ctx.redraw = draw;
+    const hold = $('#cm-hold');
+    const down = (e) => { e.preventDefault(); show(original()); }; const up = () => { if (preview) show(preview); };
+    hold.addEventListener('pointerdown', down); ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => hold.addEventListener(ev, up));
+    $('#cm-shape').oninput = (e) => { const v = +e.target.value; $('#cm-shape-v').textContent = v === 0 ? 'normal' : v > 0 ? `kurus ${v}%` : `gemuk ${-v}%`; draw(); };
+    ['cm-bright', 'cm-face-on', 'cm-wrinkle', 'cm-young'].forEach(id => $('#' + id).onchange = draw);
+    bindSeg($('#cm-level'), draw);
+    bindSeg($('#cm-mode'), v => {
+      st.mode = v; hold.hidden = v === 'ai';
+      $('#cm-mnote').textContent = v === 'ai' ? 'Foto dikirim ke model gambar di GPU server, biasanya 10–40 detik. Pratinjau baru tersedia setelah diproses.' : 'Semua diproses di browser Anda. Foto tidak dikirim ke mana pun.';
+      $('#cm-shape-n').textContent = v === 'ai' ? 'Mode AI mengubah wajah dan badan.' : 'Tanpa AI: pipi dan rahang dibuat lebih tirus atau berisi. Mode AI juga mengubah badan.';
+      draw();
+    });
+    show(original());
+    // deteksi wajah berjalan di latar; tombol Terapkan tidak menunggu
+    st.facesReady = (async () => { try {
+      st.faces = (await faceBoxes(img)).filter(f => f.score >= 0.5 && Math.min(f.w, f.h) >= 0.04 * Math.min(W, H));
+      const el = $('#cm-face');
+      if (st.faces.length) { el.className = 'face-status ok'; el.innerHTML = `<b>${st.faces.length} wajah terdeteksi</b><span>Pencerahan wajah, kerut, dan bentuk wajah diterapkan pada wajah tersebut.</span>`; }
+      else { el.className = 'face-status'; el.innerHTML = '<b>Wajah tidak terdeteksi</b><span>Tanpa AI, kulit dikenali dari warnanya di seluruh foto, dan bentuk wajah tidak diubah. Mode AI tetap bisa dipakai.</span>'; }
+    } catch (e) { $('#cm-face').innerHTML = `<b>Deteksi wajah gagal</b><span>${esc(e.message)}</span>`; }
+    draw(); })();
+    draw();
+  },
+  async run(ctx) {
+    const st = ctx.state, o = ctx.opts(); const img = st.img; const [W, H] = dims(img);
+    if (!o.bright && !o.face && !o.wrinkle && !o.young && !o.shape) throw new Error('Nyalakan minimal satu pilihan terlebih dahulu.');
+    let res;
+    if (st.mode === 'ai') {
+      busy.show('Memproses dengan AI', 'Biasanya 10–40 detik');
+      const out = await aiImage(glowPrompt(o), img); const [ow, oh] = dims(out); const k = Math.min(1, 2048 / Math.max(W, H));
+      res = Math.abs(ow / oh - W / H) < 0.03 ? resample(out, W * k, H * k) : resample(out, ow * Math.min(2, 2048 / Math.max(ow, oh)), oh * Math.min(2, 2048 / Math.max(ow, oh)));
+    } else {
+      busy.show('Memproses di browser', 'Resolusi penuh');
+      await st.facesReady; await sleep(30); res = retouchLocal(img, st.faces, Math.min(1, Math.sqrt(24e6 / (W * H))), o);
+    }
+    const base = baseName(ctx.files[0].file.name); const type = ctx.files[0].file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+    const outs = [{ name: `${base}-cerah.${EXT[type]}`, blob: await toBlob(res, type, 0.93) }];
+    if ($('#cm-ba').checked) {
+      const hh = Math.min(1200, res.height); const a = resample(img, W * hh / H, hh), b = resample(res, res.width * hh / res.height, hh);
+      const pad = Math.round(hh * 0.02), lab = Math.round(hh * 0.07);
+      const [c, x] = makeCanvas(a.width + b.width + pad * 3, hh + pad * 2 + lab); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+      x.drawImage(a, pad, pad); x.drawImage(b, a.width + pad * 2, pad);
+      x.fillStyle = '#1E1A3C'; x.font = `700 ${Math.round(lab * 0.5)}px Figtree, sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText('Sebelum', pad + a.width / 2, hh + pad + lab / 2); x.fillText('Sesudah', a.width + pad * 2 + b.width / 2, hh + pad + lab / 2);
+      outs.push({ name: `${base}-sebelum-sesudah.jpg`, blob: await toBlob(c, 'image/jpeg', 0.9) });
+    }
+    return outs;
+  },
+});
+
 // Menu unggulan tampil paling depan di beranda
-const FEATURED = ['pas-foto', 'gaya-korea'];
+const FEATURED = ['pas-foto', 'gaya-korea', 'cerah-muda'];
 TOOLS.sort((a, b) => FEATURED.includes(b.id) - FEATURED.includes(a.id));
 
 // ================================================================
@@ -1574,7 +1807,7 @@ const fileInput = $('#file-input');
 let cur = null;          // alat yang sedang dibuka
 let pendingFiles = null; // file dari "Lanjutkan dengan"
 
-$('#topnav').innerHTML = [['pas-foto', 'Pas foto'], ['gaya-korea', 'Gaya Korea'], ['compress', 'Kompres'], ['resize', 'Ubah ukuran'], ['crop', 'Potong'], ['editor', 'Editor foto'], ['remove-bg', 'Hapus latar']]
+$('#topnav').innerHTML = [['pas-foto', 'Pas foto'], ['gaya-korea', 'Gaya Korea'], ['cerah-muda', 'Cerah & Muda'], ['compress', 'Kompres'], ['resize', 'Ubah ukuran'], ['crop', 'Potong'], ['editor', 'Editor foto'], ['remove-bg', 'Hapus latar']]
   .map(([id, l]) => `<a href="#/${id}">${l}</a>`).join('');
 
 // Menu "Semua alat": ke-15 alat per kategori, juga dipakai di layar kecil

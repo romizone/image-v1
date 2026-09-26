@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "functions": {
+    "api/screenshot.js": { "memory": 2048, "maxDuration": 60 },
+    "api/or.js": { "maxDuration": 60 }
+  },
+  "rewrites": [
+    { "source": "/api/or/:path*", "destination": "/api/or?path=:path*" }
+  ],
+  "headers": [
+    { "source": "/api/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+  ]
+}

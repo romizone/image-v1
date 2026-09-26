@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Image V.1 — alat gambar online</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖼️</text></svg>">
+<style>
+:root{
+  --ink:#1E1A3C; --ink-2:#3A3560; --muted:#5F6380; --bg:#EDEFF5; --paper:#FFFFFF; --line:#D6D9E6;
+  --sun:#FFC62E; --sun-2:#F5B400; --danger:#D43D51;
+  --c-optimize:#1FA774; --c-create:#E0457B; --c-modify:#3B6EF5; --c-convert:#EE8A12; --c-security:#7B5BF2;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r-lg:18px; --r-md:12px; --r-sm:8px;
+}
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{margin:0}
+body{font-family:var(--body);color:var(--ink);background:var(--bg);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+img{max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+a{color:inherit}
+.hidden{display:none !important}
+
+/* header */
+.top{position:sticky;top:0;z-index:30;background:var(--paper);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.02em}
+.brand-mark{width:30px;height:30px}
+.top nav{display:flex;gap:4px;flex-wrap:wrap}
+.top nav a{text-decoration:none;font-weight:600;font-size:14px;padding:8px 10px;border-radius:var(--r-sm);color:var(--ink-2)}
+.top nav a:hover{background:var(--bg)}
+.top .spacer{flex:1}
+.btn-ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:8px}
+.btn-ghost:hover{border-color:var(--ink)}
+.dot{width:8px;height:8px;border-radius:50%;background:#B7BAC9}
+.dot.on{background:var(--c-optimize)}
+.ai-status{cursor:default}
+.ai-status[data-state="ok"] .dot{background:#1FA774;box-shadow:0 0 0 3px rgba(31,167,116,.18)}
+.ai-status[data-state="ok"]{color:#137a53;border-color:rgba(31,167,116,.45)}
+.ai-status[data-state="fail"] .dot{background:#E5484D;box-shadow:0 0 0 3px rgba(229,72,77,.18)}
+.ai-status[data-state="fail"]{color:#c4282d;border-color:rgba(229,72,77,.45);cursor:pointer}
+.ai-status[data-state="checking"] .dot{animation:aipulse 1s ease-in-out infinite}
+@keyframes aipulse{50%{opacity:.3}}
+@media (max-width:1100px){.top nav{display:none}}
+.brand{white-space:nowrap;flex:none}
+.menu-wrap{position:relative;flex:none}
+.menu-btn{background:none;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:6px;color:var(--ink)}
+.menu-btn:hover,.menu-btn[aria-expanded="true"]{border-color:var(--ink)}
+.menu-btn svg{width:14px;height:14px;transition:transform .15s}
+.menu-btn[aria-expanded="true"] svg{transform:rotate(180deg)}
+.menu{position:absolute;top:calc(100% + 10px);left:0;z-index:40;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:0 18px 40px rgba(30,26,60,.16);padding:18px;width:min(760px,calc(100vw - 32px));display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px 18px}
+.menu[hidden]{display:none}
+.menu h4{grid-column:1/-1;margin:10px 0 2px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.menu h4:first-child{margin-top:0}
+.menu a{display:flex;align-items:center;gap:10px;text-decoration:none;padding:7px 8px;border-radius:var(--r-sm);font-weight:600;font-size:15px}
+.menu a:hover,.menu a[aria-current="page"]{background:var(--bg)}
+.menu .ico{width:30px;height:30px;border-radius:9px}
+.menu .ico svg{width:17px;height:17px}
+.menu .ai{margin-left:auto;font-size:11px;font-weight:700;background:var(--sun);border-radius:999px;padding:1px 7px}
+.ai-status{white-space:nowrap;flex:none}
+@media (max-width:520px){.top-in{padding:10px 14px}.brand{font-size:20px}.brand-mark{width:26px;height:26px}.menu-btn{padding:7px 11px;font-size:13px}.ai-status{padding:8px 10px}.ai-status #ai-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
+@media (max-width:860px){.menu-wrap{position:static}.menu{left:16px;right:16px;width:auto;max-height:calc(100vh - 90px);overflow:auto}.top-in{gap:12px}}
+
+/* home */
+.home{max-width:1240px;margin:0 auto;padding:56px 20px 80px}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(40px,6.4vw,84px);line-height:.95;letter-spacing:-.035em;margin:0;max-width:13ch}
+.hero p{font-size:19px;color:var(--ink-2);max-width:56ch;margin:22px 0 0}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:44px 0 22px}
+.tab{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:8px 16px;font-weight:600;font-size:14px}
+.tab[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.tool-card{display:flex;flex-direction:column;gap:12px;text-decoration:none;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;min-height:190px;position:relative}
+.tool-card:hover{border-color:var(--ink)}
+.tool-card h3{font-family:var(--display);font-weight:700;font-size:21px;margin:0;letter-spacing:-.01em}
+.tool-card p{margin:0;color:var(--muted);font-size:15px}
+.tool-card .ai{position:absolute;top:18px;right:18px;font-size:12px;font-weight:700;background:var(--sun);border-radius:999px;padding:2px 9px}
+.ico{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;color:#fff;flex:none}
+.ico svg{width:26px;height:26px}
+.cat-optimize{background:var(--c-optimize)} .cat-create{background:var(--c-create)} .cat-modify{background:var(--c-modify)} .cat-convert{background:var(--c-convert)} .cat-security{background:var(--c-security)}
+.foot{border-top:1px solid var(--line);margin-top:64px;padding-top:22px;color:var(--muted);font-size:14px;max-width:70ch}
+
+/* tool view */
+.upload{min-height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px 80px;position:relative}
+.upload h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,5vw,56px);letter-spacing:-.03em;line-height:1;margin:0}
+.upload p.lead{color:var(--ink-2);font-size:19px;max-width:52ch;margin:16px 0 34px}
+.btn-sun{background:var(--sun);border:none;border-radius:var(--r-md);font-weight:700;font-size:19px;padding:20px 44px;box-shadow:0 3px 0 var(--sun-2);color:var(--ink)}
+.btn-sun:hover{background:#FFD24F}
+.btn-sun:active{transform:translateY(2px);box-shadow:0 1px 0 var(--sun-2)}
+.btn-sun:disabled{opacity:.5;cursor:not-allowed}
+.upload .hint{margin-top:14px;color:var(--muted);font-size:14px}
+.drop-veil{position:fixed;inset:0;background:rgba(30,26,60,.85);color:#fff;display:none;place-items:center;font-family:var(--display);font-size:34px;font-weight:700;z-index:60;pointer-events:none}
+body.dragging .drop-veil{display:grid}
+
+.work{display:grid;grid-template-columns:1fr 360px;min-height:calc(100vh - 60px)}
+.work-main{padding:28px;overflow:auto;background-color:var(--bg);background-image:radial-gradient(#CDD1E0 1px,transparent 1px);background-size:18px 18px;position:relative}
+.work-side{background:var(--paper);border-left:1px solid var(--line);display:flex;flex-direction:column;max-height:calc(100vh - 60px);position:sticky;top:60px}
+.side-head{padding:22px 22px 6px}
+.side-head h2{font-family:var(--display);font-size:26px;font-weight:800;margin:0;letter-spacing:-.02em}
+.side-body{padding:10px 22px 22px;overflow:auto;flex:1}
+.side-foot{padding:16px 22px 22px;border-top:1px solid var(--line)}
+.side-foot .btn-sun{width:100%;font-size:18px;padding:16px}
+@media (max-width:860px){
+  .work{grid-template-columns:1fr}
+  .work-side{position:static;max-height:none;border-left:none;border-top:1px solid var(--line)}
+  .side-foot{position:sticky;bottom:0;background:var(--paper)}
+  .work-main{padding:16px}
+}
+
+/* files grid */
+.files{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
+.fcard{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:10px;position:relative;display:flex;flex-direction:column;gap:8px}
+.fthumb{aspect-ratio:1;display:grid;place-items:center;overflow:hidden;border-radius:6px;background:repeating-conic-gradient(#EEF0F5 0 25%,#fff 0 50%) 0 0/16px 16px}
+.fthumb img{max-width:100%;max-height:100%;object-fit:contain;transition:transform .25s}
+.fthumb .ext{font-family:var(--display);font-weight:800;color:var(--muted);font-size:22px}
+.fname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fmeta{font-size:12px;color:var(--muted)}
+.fx{position:absolute;top:-8px;right:-8px;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--paper);display:grid;place-items:center;font-size:16px;line-height:1}
+.fx:hover{border-color:var(--danger);color:var(--danger)}
+.frow{display:flex;gap:6px}
+.frow button{flex:1;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 0;font-size:15px}
+.frow button:hover{border-color:var(--ink)}
+.add-more{margin-top:18px;border:2px dashed #AEB2C6;background:transparent;border-radius:var(--r-md);padding:14px 20px;font-weight:700;color:var(--ink-2)}
+.add-more:hover{border-color:var(--ink);color:var(--ink)}
+
+/* form controls */
+.field{margin:16px 0}
+.field > label, .lbl{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
+.field small, .note{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+.inp, select.inp, textarea.inp{width:100%;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;background:var(--paper)}
+.inp:focus{border-color:var(--ink);outline:none}
+textarea.inp{resize:vertical;min-height:90px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden}
+.seg button{flex:1;border:none;background:var(--paper);padding:9px 6px;font-weight:600;font-size:14px}
+.seg button + button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.choice{display:flex;flex-direction:column;gap:8px}
+.choice label{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--r-md);padding:12px;cursor:pointer}
+.choice label:has(input:checked){border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.choice input{margin-top:4px;accent-color:var(--ink)}
+.choice b{display:block;font-size:15px}
+.choice span{font-size:13px;color:var(--muted)}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:600}
+.check input{accent-color:var(--ink);width:16px;height:16px}
+input[type=range]{width:100%;accent-color:var(--ink)}
+input[type=color]{width:100%;height:40px;border:1px solid var(--line);border-radius:var(--r-sm);padding:2px;background:var(--paper)}
+.btn{border:1px solid var(--ink);background:var(--paper);border-radius:var(--r-sm);padding:9px 14px;font-weight:700;font-size:14px}
+.btn:hover{background:var(--ink);color:#fff}
+.btn.full{width:100%}
+.btn-ai{border:none;background:var(--ink);color:#fff;border-radius:var(--r-sm);padding:10px 14px;font-weight:700;font-size:14px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px}
+.btn-ai:hover{background:var(--ink-2)}
+.face-status{border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;margin:0 0 14px;background:#F7F8FC}
+.face-status b{display:block;font-size:15px;margin-bottom:2px}
+.face-status span{font-size:13px;color:var(--muted)}
+.face-status.ok{border-color:rgba(31,167,116,.5);background:#EFFAF5}.face-status.ok b{color:#137a53}
+.face-status.bad{border-color:rgba(229,72,77,.6);background:#FDEEEE}.face-status.bad b{color:#c4282d}
+.pf-stage canvas{height:min(62vh,560px);width:auto;max-width:100%;border-radius:4px}
+.swatches{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.swatch{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+.swatch[aria-pressed="true"]{outline:3px solid var(--ink);outline-offset:2px}
+.ai-box{border:1px solid var(--line);border-radius:var(--r-md);padding:14px;margin:18px 0;background:#F7F8FC}
+.ai-box h4{margin:0 0 4px;font-size:15px;display:flex;align-items:center;gap:8px}
+.ai-box h4::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--sun)}
+.pos-grid{display:grid;grid-template-columns:repeat(3,38px);gap:4px}
+.pos-grid button{height:38px;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:0}
+.pos-grid button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.emoji-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
+.emoji-grid button{font-size:24px;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 0}
+.subtabs{display:flex;gap:4px;margin:6px 0 4px;flex-wrap:wrap}
+.subtabs button{border:none;background:none;padding:8px 7px;font-weight:700;font-size:14px;color:var(--muted);border-bottom:2px solid transparent}
+.subtabs button[aria-pressed="true"]{color:var(--ink);border-color:var(--ink)}
+.stage{display:flex;align-items:center;justify-content:center;min-height:100%}
+.stage canvas{max-width:100%;max-height:calc(100vh - 140px);background:repeating-conic-gradient(#EEF0F5 0 25%,#fff 0 50%) 0 0/16px 16px;box-shadow:0 1px 2px rgba(30,26,60,.08),0 8px 30px rgba(30,26,60,.12);touch-action:none}
+.crop-wrap{width:100%;height:min(72vh,680px)}
+.crop-wrap img{display:block;max-width:100%}
+.preview-box{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:repeating-conic-gradient(#EEF0F5 0 25%,#fff 0 50%) 0 0/16px 16px}
+.preview-box canvas{display:block;width:100%;height:auto}
+.html-editor{width:100%;min-height:calc(100vh - 160px);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;line-height:1.55;border:1px solid var(--line);border-radius:var(--r-md);padding:16px;background:var(--paper)}
+
+/* result */
+.result{max-width:880px;margin:0 auto;padding:56px 20px 90px;text-align:center}
+.result h1{font-family:var(--display);font-weight:800;font-size:clamp(32px,4.6vw,50px);letter-spacing:-.03em;line-height:1.02;margin:0}
+.result .lead{color:var(--ink-2);font-size:18px;margin:12px 0 30px}
+.saving{display:inline-block;background:var(--c-optimize);color:#fff;border-radius:var(--r-md);padding:14px 22px;font-family:var(--display);font-weight:800;font-size:28px;margin-bottom:26px}
+.saving small{display:block;font-family:var(--body);font-weight:500;font-size:14px;opacity:.9}
+.outs{display:flex;flex-direction:column;gap:8px;margin:34px 0;text-align:left}
+.out{display:flex;align-items:center;gap:14px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 14px}
+.out img{width:56px;height:56px;object-fit:contain;border-radius:6px;background:repeating-conic-gradient(#EEF0F5 0 25%,#fff 0 50%) 0 0/12px 12px}
+.out .n{flex:1;min-width:0}
+.out .n b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.out .n span{font-size:13px;color:var(--muted)}
+.out.err{border-color:#F1B5BE;background:#FFF5F6}
+.out.err span{color:var(--danger)}
+.continue{margin-top:40px}
+.continue h3{font-family:var(--display);font-size:20px;margin:0 0 12px}
+.continue .chips{justify-content:center}
+.linkish{background:none;border:none;text-decoration:underline;font-weight:600;color:var(--ink-2);margin-top:18px}
+
+/* overlay, modal, toast */
+.busy{position:fixed;inset:0;background:rgba(237,239,245,.92);z-index:80;display:grid;place-items:center;text-align:center}
+.busy .spin{width:54px;height:54px;border-radius:50%;border:5px solid var(--line);border-top-color:var(--ink);animation:spin .9s linear infinite;margin:0 auto 20px}
+.busy b{font-family:var(--display);font-size:26px;display:block}
+.busy span{color:var(--muted)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.busy .spin{animation-duration:3s}.fthumb img{transition:none}}
+dialog{border:none;border-radius:var(--r-lg);padding:0;width:min(560px,94vw);color:var(--ink)}
+dialog::backdrop{background:rgba(30,26,60,.55)}
+.dlg{padding:26px}
+.dlg h2{font-family:var(--display);font-weight:800;font-size:28px;margin:0 0 4px;letter-spacing:-.02em}
+.dlg .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.dlg .actions .btn-sun{font-size:16px;padding:12px 22px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:var(--r-md);z-index:90;max-width:min(560px,92vw);font-weight:600;font-size:14px}
+.toast.error{background:var(--danger)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#/">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="9" fill="#1E1A3C"/><circle cx="12" cy="12" r="4" fill="#FFC62E"/><path d="M5 25l8-8 5 5 4-4 5 5v2H5z" fill="#fff"/></svg>
+      Image V.1
+    </a>
+    <div class="menu-wrap">
+      <button class="menu-btn" type="button" id="menu-btn" aria-expanded="false" aria-controls="menu">Semua alat <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+      <div class="menu" id="menu" hidden></div>
+    </div>
+    <nav id="topnav" aria-label="Alat unggulan"></nav>
+    <span class="spacer"></span>
+    <button class="btn-ghost ai-status" id="ai-status" type="button" data-state="checking" title="Memeriksa layanan AI..." aria-live="polite"><span class="dot" id="ai-dot"></span><span id="ai-label">Memeriksa AI</span></button>
+  </div>
+</header>
+
+<main id="app"></main>
+<div class="drop-veil">Lepaskan gambar di sini</div>
+<input type="file" id="file-input" class="hidden" multiple>
+
+<dialog id="dlg-settings">
+  <form class="dlg" method="dialog" id="settings-form">
+    <h2>Pengaturan AI</h2>
+    <p class="note" style="margin:0 0 6px">Dipakai untuk fitur bertanda AI. Alat lain berjalan penuh di browser tanpa API.</p>
+    <div class="field">
+      <label for="s-key">API key OpenRouter</label>
+      <input class="inp" id="s-key" type="password" autocomplete="off" placeholder="sk-or-v1-...">
+      <small>Disimpan di browser ini saja. Bila situs dideploy dengan key di server (Vercel/server.js), kolom ini boleh dikosongkan.</small>
+    </div>
+    <div class="field">
+      <label for="s-base">Base URL API</label>
+      <input class="inp" id="s-base" placeholder="https://openrouter.ai/api/v1">
+      <small>Otomatis memakai proxy <code>api/or</code> saat key tersedia di server. Isi manual hanya bila memakai penyedia lain.</small>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label for="s-img">Model gambar</label>
+        <input class="inp" id="s-img" list="dl-img">
+        <datalist id="dl-img"></datalist>
+      </div>
+      <div class="field">
+        <label for="s-vis">Model vision/teks</label>
+        <input class="inp" id="s-vis" list="dl-vis">
+        <datalist id="dl-vis"></datalist>
+      </div>
+    </div>
+    <button class="btn" type="button" id="btn-load-models">Muat daftar model dari OpenRouter</button>
+    <small class="note" id="models-status"></small>
+    <div class="field">
+      <label for="s-shot">Endpoint screenshot URL (opsional)</label>
+      <input class="inp" id="s-shot" placeholder="api/screenshot">
+      <small>Dipakai HTML ke Gambar mode URL. Terisi otomatis (<code>api/screenshot</code>) saat situs dideploy di Vercel atau lewat server.js.</small>
+    </div>
+    <div class="actions">
+      <button class="btn" value="cancel" type="submit">Batal</button>
+      <button class="btn-sun" value="save" type="submit" id="btn-save-settings">Simpan</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module">
+// ================================================================
+// Image V.1 — 13 alat gambar di browser + fitur AI via OpenRouter
+// Semua pemrosesan non-AI berjalan di sisi klien (Canvas/WASM).
+// ================================================================
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+// ---------- CDN libraries (dimuat hanya saat dibutuhkan) ----------
+const CDN = {
+  jszip: 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js',
+  pako: 'https://cdn.jsdelivr.net/npm/pako@1.0.11/dist/pako.min.js',
+  utif: 'https://cdn.jsdelivr.net/npm/utif@3.1.0/UTIF.js',
+  agpsd: 'https://cdn.jsdelivr.net/npm/ag-psd@31.0.2/dist/bundle.js',
+  upng: 'https://cdn.jsdelivr.net/npm/upng-js@2.1.0/UPNG.js',
+  heic: 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js',
+  h2c: 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
+  cropperJs: 'https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js',
+  cropperCss: 'https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css',
+  gifenc: 'https://cdn.jsdelivr.net/npm/gifenc@1.0.3/dist/gifenc.esm.js',
+  gifuct: 'https://cdn.jsdelivr.net/npm/gifuct-js@2.1.2/+esm',
+  imgly: 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/+esm',
+  mediapipe: 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/vision_bundle.mjs',
+  mediapipeWasm: 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.0.1/wasm',
+  faceModel: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite',
+};
+const _scripts = {};
+function loadScript(src) {
+  if (!_scripts[src]) _scripts[src] = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = () => rej(new Error('Gagal memuat ' + src));
+    document.head.appendChild(s);
+  });
+  return _scripts[src];
+}
+function loadCss(href) {
+  if ($(`link[href="${href}"]`)) return;
+  const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l);
+}
+
+// ---------- utilitas gambar ----------
+const EXT = {'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif','image/svg+xml':'svg','image/bmp':'bmp','image/avif':'avif'};
+const baseName = (n) => n.replace(/\.[^.]+$/, '');
+const extOf = (n) => (n.match(/\.([^.]+)$/) || [,''])[1].toLowerCase();
+const fmtBytes = (b) => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1) + ' KB' : (b/1048576).toFixed(2) + ' MB';
+const isHeic = (f) => /hei[cf]/i.test(f.type) || /^(heic|heif)$/.test(extOf(f.name));
+const isTiff = (f) => /tiff/i.test(f.type) || /^tiff?$/.test(extOf(f.name));
+const isPsd = (f) => /photoshop|x-psd/i.test(f.type) || /^ps[db]$/.test(extOf(f.name));
+const isRaw = (f) => /^(cr2|cr3|nef|arw|dng|raf|orf|rw2|pef|srw)$/.test(extOf(f.name));
+/** format yang tidak bisa dibaca langsung oleh <img>, didekode di browser */
+const needsDecode = (f) => isHeic(f) || isTiff(f) || isPsd(f);
+/** tipe output yang bisa diencode browser; selain itu jatuh ke PNG */
+const outType = (t) => ['image/jpeg','image/png','image/webp'].includes(t) ? t : 'image/png';
+
+function loadImg(src) {
+  return new Promise((res, rej) => {
+    const im = new Image(); im.decoding = 'async';
+    im.onload = () => res(im); im.onerror = () => rej(new Error('Format gambar tidak dapat dibaca browser'));
+    im.src = src;
+  });
+}
+/** HEIC/TIFF/PSD -> Blob PNG yang bisa dibaca browser */
+async function decodeSpecial(file) {
+  if (isHeic(file)) {
+    await loadScript(CDN.heic);
+    const r = await window.heic2any({ blob: file, toType: 'image/png' });
+    return Array.isArray(r) ? r[0] : r;
+  }
+  if (isTiff(file)) {
+    await loadScript(CDN.pako); await loadScript(CDN.utif);
+    const buf = await file.arrayBuffer(); const ifds = window.UTIF.decode(buf);
+    // pilih halaman terbesar (sebagian TIFF menyimpan thumbnail di halaman pertama)
+    const ifd = ifds.reduce((a, b) => ((b.t256?.[0] || 0) * (b.t257?.[0] || 0) > (a.t256?.[0] || 0) * (a.t257?.[0] || 0) ? b : a), ifds[0]);
+    if (!ifd) throw new Error('File TIFF kosong atau rusak');
+    window.UTIF.decodeImage(buf, ifd, ifds);
+    const w = ifd.width, h = ifd.height; if (!w || !h) throw new Error('Kompresi TIFF ini tidak didukung');
+    const rgba = window.UTIF.toRGBA8(ifd);
+    const [c, x] = makeCanvas(w, h); x.putImageData(new ImageData(new Uint8ClampedArray(rgba.buffer, rgba.byteOffset, w * h * 4), w, h), 0, 0);
+    return toBlob(c, 'image/png');
+  }
+  if (isPsd(file)) {
+    await loadScript(CDN.agpsd);
+    const psd = window.agPsd.readPsd(await file.arrayBuffer(), { skipLayerImageData: true, skipThumbnail: true });
+    if (!psd.canvas) throw new Error('PSD ini tidak menyimpan gambar gabungan. Simpan ulang di Photoshop dengan "Maximize Compatibility" aktif.');
+    return toBlob(psd.canvas, 'image/png');
+  }
+  return file;
+}
+async function fileToImage(file) {
+  const blob = needsDecode(file) ? await decodeSpecial(file) : file;
+  const url = URL.createObjectURL(blob);
+  try { return await loadImg(url); } finally { setTimeout(() => URL.revokeObjectURL(url), 2000); }
+}
+function makeCanvas(w, h) {
+  const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h));
+  const ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  return [c, ctx];
+}
+const dims = (img) => [img.naturalWidth || img.width, img.naturalHeight || img.height];
+function toBlob(canvas, type = 'image/png', q = 0.92) {
+  return new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('Gagal mengekspor gambar')), type, q));
+}
+/** resize kualitas tinggi: turun bertahap 50% agar tidak aliasing */
+function resample(src, w, h) {
+  let [sw, sh] = dims(src); let cur = src;
+  w = Math.max(1, Math.round(w)); h = Math.max(1, Math.round(h));
+  while (sw / 2 >= w && sh / 2 >= h) {
+    const [c, x] = makeCanvas(sw / 2, sh / 2); x.drawImage(cur, 0, 0, c.width, c.height);
+    cur = c; sw = c.width; sh = c.height;
+  }
+  const [c, x] = makeCanvas(w, h); x.drawImage(cur, 0, 0, w, h); return c;
+}
+function sharpen(canvas, amount = 0.45) {
+  const ctx = canvas.getContext('2d'); const { width: w, height: h } = canvas;
+  if (w * h > 24e6) return canvas;
+  const src = ctx.getImageData(0, 0, w, h); const s = src.data; const out = ctx.createImageData(w, h); const o = out.data;
+  const k = 1 + 4 * amount;
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = (y * w + x) * 4;
+    if (x === 0 || y === 0 || x === w - 1 || y === h - 1) { o[i]=s[i];o[i+1]=s[i+1];o[i+2]=s[i+2];o[i+3]=s[i+3]; continue; }
+    for (let c = 0; c < 3; c++) {
+      o[i+c] = k*s[i+c] - amount*(s[i-4+c] + s[i+4+c] + s[i-w*4+c] + s[i+w*4+c]);
+    }
+    o[i+3] = s[i+3];
+  }
+  ctx.putImageData(out, 0, 0); return canvas;
+}
+function downloadBlob(blob, name) {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+/** gambar -> dataURL JPEG yang diperkecil untuk dikirim ke model (hemat token) */
+function imageToDataUrl(img, max = 1536, type = 'image/jpeg') {
+  const [w, h] = dims(img); const s = Math.min(1, max / Math.max(w, h));
+  const [c, x] = makeCanvas(w * s, h * s);
+  if (type === 'image/jpeg') { x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); }
+  x.drawImage(img, 0, 0, c.width, c.height); return c.toDataURL(type, 0.9);
+}
+/** data URL untuk dikirim ke API; dikecilkan bertahap agar payload < ~3 MB (batas request Vercel 4,5 MB) */
+function imageForApi(img, max) {
+  const LIMIT = 3_000_000;
+  let d = imageToDataUrl(img, max);
+  while (d.length > LIMIT && max > 512) { max = Math.round(max * 0.8); d = imageToDataUrl(img, max); }
+  return d;
+}
+
+/** decode GIF animasi -> [{canvas, delay}] (frame utuh, disposal ditangani) */
+async function decodeGif(file) {
+  const m = await import(CDN.gifuct); const { parseGIF, decompressFrames } = m.parseGIF ? m : m.default;
+  const gif = parseGIF(await file.arrayBuffer()); const frames = decompressFrames(gif, true);
+  const W = gif.lsd.width, H = gif.lsd.height; const [acc, ax] = makeCanvas(W, H); const out = [];
+  let prev = null;
+  for (const fr of frames) {
+    if (prev && prev.disposalType === 2) ax.clearRect(prev.dims.left, prev.dims.top, prev.dims.width, prev.dims.height);
+    if (prev && prev.disposalType === 3 && prev.snap) ax.putImageData(prev.snap, 0, 0);
+    if (fr.disposalType === 3) fr.snap = ax.getImageData(0, 0, W, H);
+    const [p, px] = makeCanvas(fr.dims.width, fr.dims.height); px.putImageData(new ImageData(fr.patch, fr.dims.width, fr.dims.height), 0, 0);
+    ax.drawImage(p, fr.dims.left, fr.dims.top);
+    const [c, x] = makeCanvas(W, H); x.drawImage(acc, 0, 0); out.push({ canvas: c, delay: Math.max(20, fr.delay || 100) });
+    prev = fr;
+  }
+  return out;
+}
+/** encode [{canvas, delay}] -> Blob GIF */
+async function encodeGif(frames, cnum = 256, scale = 1, repeat = 0) {
+  const g = await import(CDN.gifenc); const enc = g.GIFEncoder();
+  for (const [i, f] of frames.entries()) {
+    const c = scale === 1 ? f.canvas : resample(f.canvas, f.canvas.width * scale, f.canvas.height * scale);
+    const { data } = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+    const palette = g.quantize(data, cnum); const index = g.applyPalette(data, palette);
+    enc.writeFrame(index, c.width, c.height, { palette, delay: f.delay, repeat });
+    if (i % 5 === 4) await sleep(0);
+  }
+  enc.finish(); return new Blob([enc.bytes()], { type: 'image/gif' });
+}
+
+// ---------- UI umum ----------
+let toastTimer;
+function toast(msg, kind = '') {
+  let t = $('.toast'); if (!t) { t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.className = 'toast ' + kind; t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.remove(), kind === 'error' ? 7000 : 3500);
+}
+const busy = {
+  el: null,
+  show(title, sub = '') {
+    if (!this.el) { this.el = document.createElement('div'); this.el.className = 'busy'; this.el.setAttribute('role', 'alert'); document.body.appendChild(this.el); }
+    this.el.innerHTML = `<div><div class="spin"></div><b>${esc(title)}</b><span>${esc(sub)}</span></div>`;
+  },
+  sub(text) { const s = this.el && $('span', this.el); if (s) s.textContent = text; },
+  hide() { this.el?.remove(); this.el = null; },
+};
+/** helper kontrol segmented */
+function bindSeg(root, onChange) {
+  $$('button', root).forEach(b => b.addEventListener('click', () => {
+    $$('button', root).forEach(x => x.setAttribute('aria-pressed', x === b));
+    onChange(b.dataset.v);
+  }));
+}
+const segVal = (root) => $('button[aria-pressed="true"]', root)?.dataset.v;
+
+// ---------- Pengaturan & OpenRouter ----------
+const SKEY = 'olah.settings';
+const DEFAULTS = { apiKey: '', baseUrl: 'https://openrouter.ai/api/v1', imageModel: 'google/gemini-2.5-flash-image', visionModel: 'google/gemini-2.5-flash', shotEndpoint: '' };
+let serverMode = false; // true jika dilayani server (Vercel/server.js): proxy AI dan screenshot tersedia
+let serverReady = Promise.resolve(); // selesai setelah deteksi server di awal
+function getSettings() {
+  let s = {}; try { s = JSON.parse(localStorage.getItem(SKEY) || '{}'); } catch {}
+  const out = { ...DEFAULTS, ...s };
+  if (serverMode) { if (!s.baseUrl) out.baseUrl = 'api/or'; if (!s.shotEndpoint) out.shotEndpoint = 'api/screenshot'; }
+  return out;
+}
+function saveSettings(s) { try { localStorage.setItem(SKEY, JSON.stringify(s)); } catch {} checkAi(); }
+
+// ---------- Status AI (indikator hijau/merah, tanpa pengaturan untuk pengguna) ----------
+const ai = { state: 'checking', reason: '' };
+function renderAiStatus() {
+  const b = $('#ai-status'); b.dataset.state = ai.state;
+  $('#ai-label').textContent = { checking: 'Memeriksa AI', ok: 'AI aktif', fail: 'AI tidak aktif' }[ai.state];
+  b.title = ai.state === 'ok' ? 'Fitur AI siap dipakai' : ai.state === 'fail' ? (ai.reason || 'Fitur AI tidak tersedia') + '. Klik untuk cek ulang.' : 'Memeriksa layanan AI...';
+}
+function setAi(state, reason = '') { ai.state = state; ai.reason = reason; renderAiStatus(); }
+let _aiCheck;
+function checkAi() {
+  return _aiCheck ??= (async () => {
+    setAi('checking'); await serverReady;
+    const s = getSettings();
+    if (s.baseUrl.replace(/\/$/, '') === 'api/or') {
+      try {
+        const r = await fetch('api/health?check=1', { cache: 'no-store', signal: AbortSignal.timeout(10_000) });
+        const h = await r.json(); h.ai ? setAi('ok') : setAi('fail', h.aiReason || 'Fitur AI tidak tersedia');
+      } catch { setAi('fail', 'Server tidak dapat dihubungi'); }
+    } else if (s.apiKey || !/openrouter\.ai/.test(s.baseUrl)) setAi('ok');
+    else setAi('fail', 'Key AI belum dipasang');
+  })().finally(() => { _aiCheck = null; });
+}
+
+async function orFetch(path, body) {
+  const s = getSettings();
+  if (ai.state !== 'ok') await checkAi();
+  if (ai.state !== 'ok') throw new Error('Fitur AI sedang tidak tersedia: ' + ai.reason + '.');
+  const headers = { 'Content-Type': 'application/json' };
+  if (s.apiKey) headers.Authorization = 'Bearer ' + s.apiKey;
+  const res = await fetch(s.baseUrl.replace(/\/$/, '') + path, { method: body ? 'POST' : 'GET', headers, body: body ? JSON.stringify(body) : undefined });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.error) {
+    const code = data.error?.code || res.status;
+    if ([401, 402, 403].includes(+code)) setAi('fail', +code === 402 ? 'Kredit AI habis' : 'Key AI tidak valid');
+    if (+code === 429) throw new Error('Server AI sedang sibuk, coba lagi sebentar.');
+    throw new Error('AI gagal: ' + (data.error?.message || 'HTTP ' + res.status));
+  }
+  return data;
+}
+/** edit/generate gambar. Mengembalikan HTMLImageElement */
+async function aiImage(prompt, img) {
+  const s = getSettings();
+  const content = [{ type: 'text', text: prompt }];
+  if (img) content.push({ type: 'image_url', image_url: { url: imageForApi(img, 1536) } });
+  const req = (modalities) => orFetch('/chat/completions', { model: s.imageModel, modalities, messages: [{ role: 'user', content }] });
+  let data;
+  try { data = await req(['image', 'text']); }
+  catch (e) { if (/modalit/i.test(e.message)) data = await req(['image']); else throw e; }
+  const msg = data.choices?.[0]?.message || {};
+  const url = msg.images?.[0]?.image_url?.url;
+  if (!url) throw new Error('AI tidak menghasilkan gambar. Coba ubah perintahnya atau ulangi sebentar lagi.');
+  return loadImg(url);
+}
+/** tanya model vision, harapkan JSON */
+async function aiJSON(prompt, img) {
+  const s = getSettings();
+  const content = [{ type: 'text', text: prompt + '\nBalas HANYA dengan JSON valid, tanpa penjelasan dan tanpa ```.' }];
+  if (img) content.push({ type: 'image_url', image_url: { url: imageForApi(img, 1280) } });
+  const data = await orFetch('/chat/completions', { model: s.visionModel, messages: [{ role: 'user', content }], temperature: 0.4 });
+  let text = data.choices?.[0]?.message?.content || '';
+  if (Array.isArray(text)) text = text.map(p => p.text || '').join('');
+  const m = text.replace(/```json|```/g, '').match(/[\[{][\s\S]*[\]}]/);
+  if (!m) throw new Error('Jawaban model bukan JSON: ' + text.slice(0, 120));
+  return JSON.parse(m[0]);
+}
+
+const dlg = $('#dlg-settings');
+function openSettings() {
+  const s = getSettings();
+  $('#s-key').value = s.apiKey; $('#s-base').value = s.baseUrl; $('#s-img').value = s.imageModel;
+  $('#s-vis').value = s.visionModel; $('#s-shot').value = s.shotEndpoint;
+  if (!dlg.open) dlg.showModal();
+}
+// Pengguna cukup melihat status. Klik saat merah = cek ulang. Shift+klik = pengaturan (khusus admin).
+$('#ai-status').addEventListener('click', (e) => { if (e.shiftKey) return openSettings(); if (ai.state !== 'checking') checkAi(); });
+dlg.addEventListener('close', () => {
+  if (dlg.returnValue !== 'save') return;
+  saveSettings({ apiKey: $('#s-key').value.trim(), baseUrl: $('#s-base').value.trim() || DEFAULTS.baseUrl, imageModel: $('#s-img').value.trim() || DEFAULTS.imageModel, visionModel: $('#s-vis').value.trim() || DEFAULTS.visionModel, shotEndpoint: $('#s-shot').value.trim() });
+  toast('Pengaturan AI disimpan');
+});
+$('#btn-load-models').addEventListener('click', async () => {
+  const st = $('#models-status'); st.textContent = 'Memuat...';
+  try {
+    const base = ($('#s-base').value.trim() || DEFAULTS.baseUrl).replace(/\/$/, '');
+    const res = await fetch(base + '/models'); const data = await res.json();
+    const models = data.data || [];
+    const imgs = models.filter(m => m.architecture?.output_modalities?.includes('image'));
+    const vis = models.filter(m => m.architecture?.input_modalities?.includes('image') && m.architecture?.output_modalities?.includes('text') && !m.architecture?.output_modalities?.includes('image'));
+    $('#dl-img').innerHTML = imgs.map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('');
+    $('#dl-vis').innerHTML = vis.map(m => `<option value="${esc(m.id)}">${esc(m.name)}</option>`).join('');
+    st.textContent = `${imgs.length} model gambar dan ${vis.length} model vision tersedia. Klik kolom model untuk memilih.`;
+  } catch (e) { st.textContent = 'Gagal memuat: ' + e.message; }
+});
+
+// ---------- ZIP ----------
+async function zipOutputs(outs, name) {
+  await loadScript(CDN.jszip);
+  const zip = new window.JSZip(); const used = new Set();
+  outs.filter(o => o.blob).forEach(o => {
+    let n = o.name, i = 1; while (used.has(n)) n = baseName(o.name) + `-${i++}.` + extOf(o.name);
+    used.add(n); zip.file(n, o.blob);
+  });
+  return zip.generateAsync({ type: 'blob' });
+}
+
+// ================================================================
+// Registry alat. Setiap alat:
+//   mount(ctx)  -> membangun opsi di sidebar & area kerja
+//   run(ctx)    -> mengembalikan [{name, blob, before?}] atau {name, error}
+// ctx: { files, main, side, refresh(), tool }
+// ================================================================
+const I = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ICONS = {
+  compress: I('<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>'),
+  resize: I('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 15l6-6M11 9h4v4"/>'),
+  crop: I('<path d="M6 2v14a2 2 0 0 0 2 2h14M18 22V8a2 2 0 0 0-2-2H2"/>'),
+  toJpg: I('<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M9 15h6M12 12l3 3-3 3"/>'),
+  fromJpg: I('<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M15 15H9M12 12l-3 3 3 3"/>'),
+  editor: I('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>'),
+  upscale: I('<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>'),
+  removebg: I('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/><path d="M2 2l20 20" stroke-dasharray="2 3"/>'),
+  watermark: I('<path d="M12 2.7l5.7 5.7a8 8 0 1 1-11.4 0z"/>'),
+  meme: I('<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>'),
+  rotate: I('<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>'),
+  html: I('<path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/>'),
+  pasfoto: I('<rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 19c.8-2.5 2.7-4 5-4s4.2 1.5 5 4"/>'),
+  korea: I('<circle cx="11" cy="13" r="7"/><path d="M8.5 15.5s1 1.3 2.5 1.3 2.5-1.3 2.5-1.3M9 11.5h.01M13 11.5h.01"/><path d="M19 1.5l.8 1.8 1.7.7-1.7.8L19 6.5l-.8-1.7-1.7-.8 1.7-.7z"/>'),
+  blur: I('<circle cx="12" cy="12" r="9"/><path d="M5 9h14M4 12h16M5 15h14M8 6h8M8 18h8"/>'),
+};
+const CATS = { optimize: 'Optimasi', create: 'Buat', modify: 'Ubah', convert: 'Konversi', security: 'Keamanan' };
+
+const TOOLS = [];
+const tool = (t) => { TOOLS.push({ accept: 'image/*,.heic,.heif', multiple: true, mode: 'grid', ...t }); };
+
+// helper grid thumbnail standar
+function renderGrid(ctx, extra) {
+  ctx.gridExtra = extra;
+  const { main, files } = ctx;
+  main.innerHTML = `<div class="files"></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="add-more" type="button">+ Tambah gambar</button><button class="add-more" type="button" data-sort>Urutkan A–Z</button></div>`;
+  $('[data-sort]', main).onclick = () => { ctx.files.sort((a, b) => a.file.name.localeCompare(b.file.name, undefined, { numeric: true })); ctx.refresh(); };
+  const grid = $('.files', main);
+  files.forEach((f, idx) => {
+    const card = document.createElement('div'); card.className = 'fcard';
+    card.innerHTML = `<button class="fx" type="button" aria-label="Hapus ${esc(f.file.name)}">×</button>
+      <div class="fthumb">${f.url ? `<img alt="" src="${f.url}">` : `<span class="ext">${esc(extOf(f.file.name).toUpperCase())}</span>`}</div>
+      <div><div class="fname" title="${esc(f.file.name)}">${esc(f.file.name)}</div><div class="fmeta">${fmtBytes(f.file.size)}${f.w ? ` · ${f.w}×${f.h}` : ''}</div></div>`;
+    const im = $('img', card);
+    if (im) im.onerror = () => { $('.fthumb', card).innerHTML = `<span class="ext">${esc(extOf(f.file.name).toUpperCase())}</span>`; };
+    $('.fx', card).onclick = () => { ctx.files.splice(idx, 1); ctx.files.length ? ctx.refresh() : go(ctx.tool.id); };
+    extra?.(f, card, idx);
+    grid.appendChild(card);
+  });
+  $('.add-more', main).onclick = () => pickFiles(ctx.tool, true);
+}
+
+// ---------------- 1. Compress ----------------
+tool({
+  id: 'compress', cat: 'optimize', icon: 'compress', name: 'Kompres gambar',
+  desc: 'Perkecil ukuran file JPG, PNG, WEBP, dan SVG dengan kualitas tetap terjaga.',
+  action: 'Kompres gambar',
+  mount(ctx) {
+    renderGrid(ctx);
+    ctx.side.innerHTML = `<div class="field"><span class="lbl">Tingkat kompresi</span><div class="choice">
+      <label><input type="radio" name="lvl" value="low"><div><b>Rendah</b><span>Kualitas tinggi, ukuran turun sedikit</span></div></label>
+      <label><input type="radio" name="lvl" value="mid" checked><div><b>Direkomendasikan</b><span>Seimbang antara kualitas dan ukuran</span></div></label>
+      <label><input type="radio" name="lvl" value="high"><div><b>Ekstrem</b><span>Ukuran paling kecil, kualitas turun</span></div></label>
+    </div></div>
+    <p class="note">PNG dikompres dengan kuantisasi warna (UPNG). GIF animasi didekode per frame lalu dienkode ulang dengan palet lebih kecil.</p>`;
+  },
+  async run(ctx) {
+    const lvl = $('input[name=lvl]:checked', ctx.side).value;
+    const Q = { low: 0.85, mid: 0.7, high: 0.45 }[lvl], CN = { low: 0, mid: 256, high: 64 }[lvl];
+    let upng = null;
+    try { await loadScript(CDN.pako); await loadScript(CDN.upng); upng = window.UPNG; } catch {}
+    const outs = [];
+    for (const [i, f] of ctx.files.entries()) {
+      busy.sub(`${i + 1} dari ${ctx.files.length}: ${f.file.name}`);
+      try {
+        const type = f.file.type; let blob;
+        if (type === 'image/svg+xml') {
+          const txt = await f.file.text();
+          blob = new Blob([txt.replace(/<!--[\s\S]*?-->/g, '').replace(/<metadata[\s\S]*?<\/metadata>/g, '').replace(/>\s+</g, '><').replace(/\s{2,}/g, ' ').trim()], { type });
+        } else if (type === 'image/gif') {
+          const frames = await decodeGif(f.file);
+          blob = await encodeGif(frames, { low: 256, mid: 128, high: 64 }[lvl], lvl === 'high' ? 0.8 : 1);
+        }
+        else {
+          const img = await fileToImage(f.file); const [w, h] = dims(img);
+          const [c, x] = makeCanvas(w, h); x.drawImage(img, 0, 0);
+          if (type === 'image/png' && upng) {
+            const buf = x.getImageData(0, 0, w, h).data.buffer;
+            blob = new Blob([upng.encode([buf], w, h, CN)], { type: 'image/png' });
+          } else blob = await toBlob(c, type === 'image/webp' ? 'image/webp' : type === 'image/png' ? 'image/png' : 'image/jpeg', Q);
+        }
+        if (blob.size >= f.file.size) blob = f.file; // jangan pernah lebih besar
+        const ext = blob.type === 'image/jpeg' && !/jpe?g$/.test(extOf(f.file.name)) ? '.jpg' : '.' + extOf(f.file.name);
+        outs.push({ name: baseName(f.file.name) + ext, blob, before: f.file.size });
+      } catch (e) { outs.push({ name: f.file.name, error: e.message }); }
+    }
+    return outs;
+  },
+});
+
+// ---------------- 2. Resize ----------------
+tool({
+  id: 'resize', cat: 'modify', icon: 'resize', name: 'Ubah ukuran',
+  desc: 'Atur dimensi berdasarkan piksel atau persentase, untuk banyak gambar sekaligus.',
+  action: 'Ubah ukuran',
+  mount(ctx) {
+    renderGrid(ctx);
+    const f0 = ctx.files.find(f => f.w) || {};
+    ctx.side.innerHTML = `<div class="field"><div class="seg" id="rz-mode"><button type="button" data-v="px" aria-pressed="true">Piksel</button><button type="button" data-v="pct" aria-pressed="false">Persentase</button></div></div>
+      <div id="rz-px"><div class="row2">
+        <div class="field"><label for="rz-w">Lebar (px)</label><input class="inp" id="rz-w" type="number" min="1" value="${f0.w || ''}"></div>
+        <div class="field"><label for="rz-h">Tinggi (px)</label><input class="inp" id="rz-h" type="number" min="1" value="${f0.h || ''}"></div></div>
+        <label class="check"><input type="checkbox" id="rz-keep" checked> Pertahankan rasio aspek</label>
+        <small class="note">Dengan rasio aktif, gambar dimuat di dalam kotak lebar × tinggi.</small></div>
+      <div id="rz-pct" class="hidden field"><div class="choice">
+        ${[25, 50, 75].map(p => `<label><input type="radio" name="pct" value="${p}" ${p === 50 ? 'checked' : ''}><div><b>${p}% lebih kecil</b></div></label>`).join('')}</div></div>
+      <div class="field"><label class="check"><input type="checkbox" id="rz-noup" checked> Jangan perbesar jika gambar lebih kecil</label></div>`;
+    bindSeg($('#rz-mode'), v => { $('#rz-px').classList.toggle('hidden', v !== 'px'); $('#rz-pct').classList.toggle('hidden', v !== 'pct'); });
+    const W = $('#rz-w'), H = $('#rz-h'), K = $('#rz-keep');
+    W.oninput = () => { if (K.checked && f0.w && W.value) H.value = Math.round(W.value * f0.h / f0.w); };
+    H.oninput = () => { if (K.checked && f0.h && H.value) W.value = Math.round(H.value * f0.w / f0.h); };
+  },
+  async run(ctx) {
+    const mode = segVal($('#rz-mode')); const noUp = $('#rz-noup').checked;
+    const W = +$('#rz-w').value, H = +$('#rz-h').value, keep = $('#rz-keep').checked;
+    const pct = +($('input[name=pct]:checked')?.value || 50);
+    const outs = [];
+    for (const [i, f] of ctx.files.entries()) {
+      busy.sub(`${i + 1} dari ${ctx.files.length}`);
+      try {
+        const img = await fileToImage(f.file); const [w, h] = dims(img); let nw, nh;
+        if (mode === 'pct') { nw = w * (1 - pct / 100); nh = h * (1 - pct / 100); }
+        else if (keep) { const s = Math.min(W ? W / w : Infinity, H ? H / h : Infinity); if (!isFinite(s)) throw new Error('Isi lebar atau tinggi'); nw = w * s; nh = h * s; }
+        else { nw = W || w; nh = H || h; }
+        if (noUp && (nw > w || nh > h)) { const s = Math.min(w / nw, h / nh); nw *= s; nh *= s; }
+        const type = outType(f.file.type);
+        outs.push({ name: `${baseName(f.file.name)}.${EXT[type]}`, blob: await toBlob(resample(img, nw, nh), type, 0.92) });
+      } catch (e) { outs.push({ name: f.file.name, error: e.message }); }
+    }
+    return outs;
+  },
+});
+
+// ---------------- 3. Crop ----------------
+tool({
+  id: 'crop', cat: 'modify', icon: 'crop', name: 'Potong gambar', multiple: false, mode: 'canvas', ai: true,
+  desc: 'Potong dengan menentukan piksel atau kotak visual. Ada saran potongan otomatis dengan AI.',
+  action: 'Potong gambar',
+  async mount(ctx) {
+    const f = ctx.files[0];
+    ctx.main.innerHTML = `<div class="crop-wrap"><img id="crop-img" alt="Gambar yang dipotong" src="${f.url}"></div>`;
+    ctx.side.innerHTML = `<div class="field"><span class="lbl">Rasio</span><div class="chips" id="cr-ratio">
+      ${[['Bebas', 'NaN'], ['1:1', '1'], ['4:3', '1.3333'], ['3:2', '1.5'], ['16:9', '1.7778'], ['9:16', '0.5625']].map(([l, v], i) => `<button class="chip" type="button" data-v="${v}" aria-pressed="${i === 0}">${l}</button>`).join('')}</div></div>
+      <div class="field"><label for="cr-preset">Preset ukuran</label><select class="inp" id="cr-preset"><option value="">Bebas</option>${[['Sampul Facebook', 851, 315], ['Header X / Twitter', 1500, 500], ['Post Instagram', 1080, 1080], ['Story Instagram', 1080, 1920], ['Thumbnail YouTube', 1280, 720], ['Banner LinkedIn', 1584, 396], ['Foto profil', 400, 400], ['Kartu A4 (300 dpi)', 2480, 3508]].map(([l, w, h]) => `<option value="${w}x${h}">${l} (${w}×${h})</option>`).join('')}</select><small>Hasil potongan otomatis diskalakan ke ukuran preset.</small></div>
+      <div class="row2"><div class="field"><label for="cr-w">Lebar</label><input class="inp" id="cr-w" type="number"></div><div class="field"><label for="cr-h">Tinggi</label><input class="inp" id="cr-h" type="number"></div></div>
+      <div class="row2"><div class="field"><label for="cr-x">Posisi X</label><input class="inp" id="cr-x" type="number"></div><div class="field"><label for="cr-y">Posisi Y</label><input class="inp" id="cr-y" type="number"></div></div>
+      <div class="ai-box"><h4>Potong pintar (AI)</h4><p class="note" style="margin:0 0 10px">Model vision mencari subjek utama lalu mengatur kotak potong.</p>
+      <button class="btn-ai" type="button" id="cr-ai">Cari subjek utama</button></div>`;
+    loadCss(CDN.cropperCss); await loadScript(CDN.cropperJs);
+    const img = $('#crop-img');
+    const sync = () => { const d = ctx.cropper.getData(true); $('#cr-w').value = d.width; $('#cr-h').value = d.height; $('#cr-x').value = d.x; $('#cr-y').value = d.y; };
+    ctx.cropper = new window.Cropper(img, { viewMode: 1, autoCropArea: 0.85, background: false, crop: sync, ready: sync });
+    ['w', 'h', 'x', 'y'].forEach(k => $('#cr-' + k).addEventListener('change', () => ctx.cropper.setData({ width: +$('#cr-w').value, height: +$('#cr-h').value, x: +$('#cr-x').value, y: +$('#cr-y').value })));
+    $$('#cr-ratio .chip').forEach(b => b.onclick = () => { $$('#cr-ratio .chip').forEach(x => x.setAttribute('aria-pressed', x === b)); $('#cr-preset').value = ''; ctx.cropper.setAspectRatio(+b.dataset.v); });
+    $('#cr-preset').onchange = (e) => { const [w, h] = e.target.value.split('x').map(Number); $$('#cr-ratio .chip').forEach(x => x.setAttribute('aria-pressed', false)); ctx.cropper.setAspectRatio(w ? w / h : NaN); };
+    $('#cr-ai').onclick = async () => {
+      busy.show('Mencari subjek utama', 'Model vision sedang menganalisis gambar');
+      try {
+        const src = await fileToImage(f.file); const [w, h] = dims(src);
+        const r = await aiJSON('Temukan subjek utama foto ini untuk dipotong secara estetis (sertakan sedikit ruang di sekitarnya). Format: {"box":[ymin,xmin,ymax,xmax]} dengan skala 0-1000.', src);
+        const [y0, x0, y1, x1] = r.box.map(Number);
+        ctx.cropper.setData({ x: x0 / 1000 * w, y: y0 / 1000 * h, width: (x1 - x0) / 1000 * w, height: (y1 - y0) / 1000 * h });
+        toast('Kotak potong diatur ke subjek utama');
+      } catch (e) { toast(e.message, 'error'); } finally { busy.hide(); }
+    };
+  },
+  async run(ctx) {
+    const f = ctx.files[0]; const type = outType(f.file.type);
+    let c = ctx.cropper.getCroppedCanvas({ imageSmoothingQuality: 'high' });
+    const [pw, ph] = ($('#cr-preset').value || '').split('x').map(Number); if (pw) c = resample(c, pw, ph);
+    return [{ name: `${baseName(f.file.name)}.${EXT[type]}`, blob: await toBlob(c, type, 0.92) }];
+  },
+});
+
+// ---------------- 4. Convert to JPG ----------------
+tool({
+  id: 'to-jpg', cat: 'convert', icon: 'toJpg', name: 'Konversi ke JPG', accept: 'image/*,.heic,.heif,.tif,.tiff,.psd,.psb,.cr2,.nef,.arw,.dng,.raf,.orf,.rw2,.pef',
+  desc: 'Ubah PNG, WEBP, GIF, SVG, HEIC, TIFF, dan PSD menjadi JPG secara massal.',
+  action: 'Konversi ke JPG',
+  mount(ctx) {
+    renderGrid(ctx);
+    ctx.side.innerHTML = `<div class="field"><label for="tj-q">Kualitas: <span id="tj-qv">90</span>%</label><input type="range" id="tj-q" min="40" max="100" value="90"></div>
+      <div class="field"><label for="tj-bg">Warna latar untuk area transparan</label><input type="color" id="tj-bg" value="#ffffff"></div>
+      <label class="check"><input type="checkbox" id="tj-frames"> Ekstrak semua frame dari GIF animasi</label>
+      <p class="note">Didukung: PNG, WebP, GIF, SVG, BMP, AVIF, HEIC, TIFF, dan PSD (semua diproses di browser). File RAW kamera belum didukung.</p>`;
+    $('#tj-q').oninput = (e) => $('#tj-qv').textContent = e.target.value;
+  },
+  async run(ctx) {
+    const q = $('#tj-q').value / 100, bg = $('#tj-bg').value; const outs = [];
+    for (const [i, f] of ctx.files.entries()) {
+      busy.sub(`${i + 1} dari ${ctx.files.length}`);
+      try {
+        if (f.file.type === 'image/gif' && $('#tj-frames').checked) {
+          const frames = await decodeGif(f.file);
+          for (const [k, fr] of frames.entries()) { const [c, x] = makeCanvas(fr.canvas.width, fr.canvas.height); x.fillStyle = bg; x.fillRect(0, 0, c.width, c.height); x.drawImage(fr.canvas, 0, 0); outs.push({ name: `${baseName(f.file.name)}-${String(k + 1).padStart(3, '0')}.jpg`, blob: await toBlob(c, 'image/jpeg', q) }); }
+          continue;
+        }
+        const img = await fileToImage(f.file); const [w, h] = dims(img);
+        const [c, x] = makeCanvas(w || 1024, h || 1024); x.fillStyle = bg; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height);
+        outs.push({ name: baseName(f.file.name) + '.jpg', blob: await toBlob(c, 'image/jpeg', q) });
+      } catch (e) { outs.push({ name: f.file.name, error: e.message }); }
+    }
+    return outs;
+  },
+});
+
+// ---------------- 5. Convert from JPG ----------------
+tool({
+  id: 'from-jpg', cat: 'convert', icon: 'fromJpg', name: 'Konversi dari JPG', accept: '.jpg,.jpeg,image/jpeg',
+  desc: 'Ubah JPG menjadi PNG, WEBP, atau GIF. Gabungkan beberapa JPG menjadi GIF animasi.',
+  action: 'Konversi',
+  mount(ctx) {
+    renderGrid(ctx, (f, card, idx) => {
+      const row = document.createElement('div'); row.className = 'frow';
+      row.innerHTML = `<button type="button" aria-label="Geser ke kiri">◀</button><button type="button" aria-label="Geser ke kanan">▶</button>`;
+      const [l, r] = $$('button', row);
+      l.onclick = () => { if (idx > 0) { [ctx.files[idx - 1], ctx.files[idx]] = [ctx.files[idx], ctx.files[idx - 1]]; ctx.refresh(); } };
+      r.onclick = () => { if (idx < ctx.files.length - 1) { [ctx.files[idx + 1], ctx.files[idx]] = [ctx.files[idx], ctx.files[idx + 1]]; ctx.refresh(); } };
+      card.appendChild(row);
+    });
+    if (ctx.side.dataset.built) return; ctx.side.dataset.built = 1; // pertahankan opsi saat grid di-refresh
+    ctx.side.innerHTML = `<div class="field"><span class="lbl">Format tujuan</span><div class="choice">
+      <label><input type="radio" name="fj" value="png" checked><div><b>PNG</b><span>Tanpa kehilangan kualitas</span></div></label>
+      <label><input type="radio" name="fj" value="webp"><div><b>WEBP</b><span>Lebih kecil, cocok untuk web</span></div></label>
+      <label><input type="radio" name="fj" value="gif"><div><b>GIF</b><span>Satu GIF per gambar</span></div></label>
+      <label><input type="radio" name="fj" value="anim"><div><b>GIF animasi</b><span>Gabungkan semua gambar sesuai urutan</span></div></label></div></div>
+      <div id="fj-anim" class="hidden"><div class="field"><label for="fj-d">Jeda antar frame (ms)</label><input class="inp" id="fj-d" type="number" value="600" min="20"></div>
+      <div class="field"><label for="fj-m">Sisi terpanjang maksimum (px)</label><input class="inp" id="fj-m" type="number" value="800" min="50"></div>
+      <label class="check"><input type="checkbox" id="fj-loop" checked> Ulangi terus</label></div>`;
+    $$('input[name=fj]', ctx.side).forEach(r => r.onchange = () => $('#fj-anim').classList.toggle('hidden', r.value !== 'anim' || !r.checked));
+  },
+  async run(ctx) {
+    const fmt = $('input[name=fj]:checked', ctx.side).value; const outs = [];
+    const gifenc = (fmt === 'gif' || fmt === 'anim') ? await import(CDN.gifenc) : null;
+    const encodeFrame = (enc, c, opts) => {
+      const { data } = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+      const palette = gifenc.quantize(data, 256); const index = gifenc.applyPalette(data, palette);
+      enc.writeFrame(index, c.width, c.height, { palette, ...opts });
+    };
+    if (fmt === 'anim') {
+      const max = +$('#fj-m').value || 800, delay = +$('#fj-d').value || 600, repeat = $('#fj-loop').checked ? 0 : -1;
+      const first = await fileToImage(ctx.files[0].file); const [w0, h0] = dims(first); const s = Math.min(1, max / Math.max(w0, h0));
+      const W = Math.round(w0 * s), H = Math.round(h0 * s); const enc = gifenc.GIFEncoder();
+      for (const [i, f] of ctx.files.entries()) {
+        busy.sub(`Frame ${i + 1} dari ${ctx.files.length}`); await sleep(0);
+        const img = i ? await fileToImage(f.file) : first; const [w, h] = dims(img); const k = Math.min(W / w, H / h);
+        const [c, x] = makeCanvas(W, H); x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+        x.drawImage(img, (W - w * k) / 2, (H - h * k) / 2, w * k, h * k);
+        encodeFrame(enc, c, { delay, repeat });
+      }
+      enc.finish();
+      return [{ name: 'animasi.gif', blob: new Blob([enc.bytes()], { type: 'image/gif' }) }];
+    }
+    for (const [i, f] of ctx.files.entries()) {
+      busy.sub(`${i + 1} dari ${ctx.files.length}`); await sleep(0);
+      try {
+        const img = await fileToImage(f.file); const [w, h] = dims(img); const [c, x] = makeCanvas(w, h); x.drawImage(img, 0, 0);
+        let blob;
+        if (fmt === 'gif') { const enc = gifenc.GIFEncoder(); encodeFrame(enc, c, {}); enc.finish(); blob = new Blob([enc.bytes()], { type: 'image/gif' }); }
+        else blob = await toBlob(c, 'image/' + fmt, 0.9);
+        outs.push({ name: `${baseName(f.file.name)}.${fmt}`, blob });
+      } catch (e) { outs.push({ name: f.file.name, error: e.message }); }
+    }
+    return outs;
+  },
+});
+
+// ---------------- 6. Photo editor ----------------
+const FILTERS = {
+  Normal: { b: 100, c: 100, s: 100, blur: 0, extra: '' },
+  'Hitam-putih': { b: 100, c: 110, s: 0, blur: 0, extra: '' },
+  Sepia: { b: 100, c: 100, s: 100, blur: 0, extra: 'sepia(0.8)' },
+  Vintage: { b: 105, c: 90, s: 80, blur: 0, extra: 'sepia(0.35) hue-rotate(-10deg)' },
+  Dingin: { b: 100, c: 105, s: 90, blur: 0, extra: 'hue-rotate(15deg)' },
+  Hangat: { b: 105, c: 100, s: 120, blur: 0, extra: 'sepia(0.2)' },
+  Dramatis: { b: 95, c: 140, s: 110, blur: 0, extra: '' },
+};
+tool({
+  id: 'editor', cat: 'create', icon: 'editor', name: 'Editor foto', multiple: false, mode: 'canvas', ai: true,
+  desc: 'Tambahkan teks, filter, bingkai, dan stiker. Edit dengan perintah teks lewat AI.',
+  action: 'Simpan gambar',
+  async mount(ctx) {
+    const st = ctx.state = { base: await fileToImage(ctx.files[0].file), f: { ...FILTERS.Normal }, frame: 'none', layers: [], sel: -1, drag: null };
+    ctx.main.innerHTML = `<div class="stage"><canvas id="ed-c" aria-label="Kanvas editor"></canvas></div>`;
+    ctx.side.innerHTML = `<div class="subtabs" id="ed-tabs">${['Filter', 'Teks', 'Stiker', 'Bingkai', 'AI'].map((t, i) => `<button type="button" data-v="${t}" aria-pressed="${i === 0}">${t}</button>`).join('')}</div>
+    <section data-p="Filter"><div class="field chips" id="ed-presets">${Object.keys(FILTERS).map((k, i) => `<button class="chip" type="button" data-v="${k}" aria-pressed="${i === 0}">${k}</button>`).join('')}</div>
+      ${[['b', 'Kecerahan', 0, 200], ['c', 'Kontras', 0, 200], ['s', 'Saturasi', 0, 200], ['blur', 'Blur', 0, 20]].map(([k, l, a, z]) => `<div class="field"><label for="ed-${k}">${l}</label><input type="range" id="ed-${k}" data-k="${k}" min="${a}" max="${z}"></div>`).join('')}</section>
+    <section data-p="Teks" class="hidden"><div class="field"><label for="ed-t">Teks</label><input class="inp" id="ed-t" value="Halo!"></div>
+      <div class="row2"><div class="field"><label for="ed-tf">Huruf</label><select class="inp" id="ed-tf"><option value="Bricolage Grotesque">Bricolage</option><option value="Figtree">Figtree</option><option value="Anton">Anton</option><option value="Georgia">Georgia</option><option value="Courier New">Courier</option></select></div>
+      <div class="field"><label for="ed-tc">Warna</label><input type="color" id="ed-tc" value="#ffffff"></div></div>
+      <div class="field"><label for="ed-ts">Ukuran</label><input type="range" id="ed-ts" min="2" max="25" value="8"></div>
+      <label class="check"><input type="checkbox" id="ed-tsh" checked> Bayangan agar terbaca</label>
+      <div class="field"><button class="btn full" type="button" id="ed-addt">Tambah teks</button></div></section>
+    <section data-p="Stiker" class="hidden"><div class="emoji-grid">${'😀 😂 😍 😎 🥳 🤯 👍 🙏 🔥 ✨ 💯 ❤️ ⭐ 🎉 📸 🌈 ☀️ 🌙 🍕 ☕ 🐱 🐶 🌸 🚀'.split(' ').map(e => `<button type="button" data-e="${e}">${e}</button>`).join('')}</div></section>
+    <section data-p="Bingkai" class="hidden"><div class="choice">${[['none', 'Tanpa bingkai'], ['white', 'Garis putih'], ['black', 'Garis hitam'], ['polaroid', 'Polaroid'], ['round', 'Sudut membulat']].map(([v, l], i) => `<label><input type="radio" name="fr" value="${v}" ${i ? '' : 'checked'}><div><b>${l}</b></div></label>`).join('')}</div></section>
+    <section data-p="AI" class="hidden"><div class="ai-box" style="margin-top:6px"><h4>Edit dengan perintah</h4>
+      <textarea class="inp" id="ed-prompt" placeholder="Contoh: ubah latar menjadi pantai saat senja, pertahankan wajah orangnya"></textarea>
+      <div class="field"><button class="btn-ai" type="button" id="ed-ai">Terapkan edit AI</button></div>
+      <small class="note">Diproses model gambar di GPU server. Hasil AI menggantikan foto dasar; teks dan stiker tetap di atasnya.</small></div></section>
+    <div class="row2" style="margin-top:14px"><button class="btn" type="button" id="ed-undo">↶ Urungkan</button><button class="btn" type="button" id="ed-redo">↷ Ulangi</button></div>
+    <div class="field" id="ed-selbox" hidden><button class="btn full" type="button" id="ed-del">Hapus elemen terpilih</button><small class="note">Seret teks atau stiker di kanvas untuk memindahkan.</small></div>`;
+    const cv = $('#ed-c');
+    // riwayat undo/redo: snapshot state (gambar dasar disimpan sebagai referensi objek)
+    const hist = { past: [], future: [] };
+    const snap = () => ({ base: st.base, f: { ...st.f }, frame: st.frame, layers: st.layers.map(l => ({ ...l })) });
+    const restore = (s) => { st.base = s.base; st.f = { ...s.f }; st.frame = s.frame; st.layers = s.layers.map(l => ({ ...l })); st.sel = -1; setSliders(); $$('input[name=fr]', ctx.side).forEach(r => r.checked = r.value === st.frame); draw(); };
+    const commit = () => { hist.past.push(snap()); if (hist.past.length > 60) hist.past.shift(); hist.future = []; };
+    $('#ed-undo').onclick = () => { if (!hist.past.length) return; hist.future.push(snap()); restore(hist.past.pop()); };
+    $('#ed-redo').onclick = () => { if (!hist.future.length) return; hist.past.push(snap()); restore(hist.future.pop()); };
+    ctx.onKey = (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !/INPUT|TEXTAREA/.test(document.activeElement?.tagName)) { e.preventDefault(); (e.shiftKey ? $('#ed-redo') : $('#ed-undo')).click(); } };
+    window.addEventListener('keydown', ctx.onKey);
+    const tabs = $('#ed-tabs');
+    bindSeg(tabs, v => $$('section[data-p]', ctx.side).forEach(s => s.classList.toggle('hidden', s.dataset.p !== v)));
+    const setSliders = () => ['b', 'c', 's', 'blur'].forEach(k => $('#ed-' + k).value = st.f[k]);
+    setSliders();
+    $$('#ed-presets .chip').forEach(b => b.onclick = () => { commit(); $$('#ed-presets .chip').forEach(x => x.setAttribute('aria-pressed', x === b)); st.f = { ...FILTERS[b.dataset.v] }; setSliders(); draw(); });
+    $$('input[type=range][data-k]', ctx.side).forEach(r => { r.onpointerdown = commit; r.oninput = () => { st.f[r.dataset.k] = +r.value; draw(); }; });
+    $$('input[name=fr]', ctx.side).forEach(r => r.onchange = () => { commit(); st.frame = r.value; draw(); });
+    const [bw, bh] = dims(st.base); const unit = Math.min(bw, bh) / 100;
+    const addLayer = (L) => { commit(); st.layers.push({ x: bw / 2, y: bh / 2, ...L }); st.sel = st.layers.length - 1; draw(); };
+    $('#ed-addt').onclick = () => addLayer({ type: 'text', text: $('#ed-t').value || 'Teks', font: $('#ed-tf').value, color: $('#ed-tc').value, size: +$('#ed-ts').value * unit, shadow: $('#ed-tsh').checked });
+    $$('.emoji-grid button', ctx.side).forEach(b => b.onclick = () => addLayer({ type: 'text', text: b.dataset.e, font: 'sans-serif', color: '#000', size: 16 * unit, shadow: false }));
+    $('#ed-del').onclick = () => { if (st.sel >= 0) { commit(); st.layers.splice(st.sel, 1); st.sel = -1; draw(); } };
+    $('#ed-ai').onclick = async () => {
+      const p = $('#ed-prompt').value.trim(); if (!p) return toast('Tulis perintah edit terlebih dahulu', 'error');
+      busy.show('Mengedit dengan AI', 'Biasanya 10 sampai 40 detik');
+      try { const out = await aiImage(p + '\nPertahankan komposisi dan rasio aspek gambar asli.', st.base); commit(); st.base = resample(out, bw, bh); draw(); toast('Edit AI diterapkan'); }
+      catch (e) { toast(e.message, 'error'); } finally { busy.hide(); }
+    };
+    // --- render ---
+    const geo = () => {
+      if (st.frame === 'polaroid') { const p = Math.round(Math.min(bw, bh) * 0.05); return { W: bw + 2 * p, H: bh + p + p * 4, ox: p, oy: p }; }
+      return { W: bw, H: bh, ox: 0, oy: 0 };
+    };
+    const textBox = (x, L) => { x.font = `700 ${L.size}px "${L.font}", sans-serif`; const m = x.measureText(L.text); return { w: m.width, h: L.size }; };
+    function render(canvas, withUi) {
+      const g = geo(); canvas.width = g.W; canvas.height = g.H; const x = canvas.getContext('2d');
+      x.save();
+      if (st.frame === 'polaroid') { x.fillStyle = '#fbfbf8'; x.fillRect(0, 0, g.W, g.H); }
+      if (st.frame === 'round') { const r = Math.min(bw, bh) * 0.08; x.beginPath(); x.roundRect(0, 0, bw, bh, r); x.clip(); }
+      const f = st.f; x.filter = `brightness(${f.b}%) contrast(${f.c}%) saturate(${f.s}%) blur(${f.blur * unit / 4}px) ${f.extra}`;
+      x.drawImage(st.base, g.ox, g.oy, bw, bh); x.filter = 'none'; x.restore();
+      if (st.frame === 'white' || st.frame === 'black') { const lw = Math.min(bw, bh) * 0.04; x.strokeStyle = st.frame === 'white' ? '#fff' : '#000'; x.lineWidth = lw; x.strokeRect(lw / 2, lw / 2, bw - lw, bh - lw); }
+      st.layers.forEach((L, i) => {
+        const b = textBox(x, L); x.textAlign = 'center'; x.textBaseline = 'middle';
+        if (L.shadow) { x.shadowColor = 'rgba(0,0,0,.55)'; x.shadowBlur = L.size / 6; x.shadowOffsetY = L.size / 20; }
+        x.fillStyle = L.color; x.fillText(L.text, L.x + g.ox, L.y + g.oy); x.shadowColor = 'transparent';
+        if (withUi && i === st.sel) { x.setLineDash([unit, unit]); x.lineWidth = unit / 3; x.strokeStyle = '#FFC62E'; x.strokeRect(L.x + g.ox - b.w / 2 - unit, L.y + g.oy - b.h / 2 - unit, b.w + 2 * unit, b.h + 2 * unit); x.setLineDash([]); }
+      });
+    }
+    function draw() { render(cv, true); $('#ed-selbox').hidden = st.sel < 0; }
+    ctx.exportCanvas = () => { const c = document.createElement('canvas'); render(c, false); return c; };
+    // --- drag layer ---
+    const pt = (e) => { const r = cv.getBoundingClientRect(); const g = geo(); return { x: (e.clientX - r.left) * cv.width / r.width - g.ox, y: (e.clientY - r.top) * cv.height / r.height - g.oy }; };
+    cv.addEventListener('pointerdown', e => {
+      const p = pt(e); const x = cv.getContext('2d'); st.sel = -1;
+      for (let i = st.layers.length - 1; i >= 0; i--) { const L = st.layers[i], b = textBox(x, L); if (Math.abs(p.x - L.x) < b.w / 2 + unit && Math.abs(p.y - L.y) < b.h / 2 + unit) { st.sel = i; commit(); st.drag = { dx: p.x - L.x, dy: p.y - L.y }; cv.setPointerCapture(e.pointerId); break; } }
+      draw();
+    });
+    cv.addEventListener('pointermove', e => { if (!st.drag || st.sel < 0) return; const p = pt(e); const L = st.layers[st.sel]; L.x = p.x - st.drag.dx; L.y = p.y - st.drag.dy; draw(); });
+    cv.addEventListener('pointerup', () => st.drag = null);
+    await document.fonts.ready; draw();
+  },
+  async run(ctx) {
+    const f = ctx.files[0]; const type = ctx.state.frame === 'round' ? 'image/png' : outType(f.file.type);
+    return [{ name: `${baseName(f.file.name)}-edit.${EXT[type]}`, blob: await toBlob(ctx.exportCanvas(), type, 0.92) }];
+  },
+});
+
+// ---------------- 7. Upscale ----------------
+tool({
+  id: 'upscale', cat: 'optimize', icon: 'upscale', name: 'Perbesar resolusi', ai: true, accept: 'image/jpeg,image/png,image/webp',
+  desc: 'Perbesar gambar 2× atau 4× dengan penajaman, atau pakai model AI untuk detail baru.',
+  action: 'Perbesar gambar',
+  mount(ctx) {
+    renderGrid(ctx);
+    ctx.side.innerHTML = `<div class="field"><span class="lbl">Skala</span><div class="seg" id="up-s"><button type="button" data-v="2" aria-pressed="true">2×</button><button type="button" data-v="4" aria-pressed="false">4×</button></div></div>
+      <div class="field"><span class="lbl">Metode</span><div class="choice">
+      <label><input type="radio" name="um" value="std" checked><div><b>Standar</b><span>Interpolasi berkualitas tinggi + penajaman, di browser</span></div></label>
+      <label><input type="radio" name="um" value="ai"><div><b>AI (GPU server)</b><span>Model gambar merekonstruksi detail. Detail kecil bisa berubah.</span></div></label></div></div>
+      <p class="note">Untuk hasil setara layanan profesional, pasang Real-ESRGAN di server GPU dan ganti metode Standar.</p>`;
+    bindSeg($('#up-s'), () => {});
+  },
+  async run(ctx) {
+    const k = +segVal($('#up-s')); const ai = $('input[name=um]:checked', ctx.side).value === 'ai'; const outs = [];
+    for (const [i, f] of ctx.files.entries()) {
+      busy.sub(`${i + 1} dari ${ctx.files.length}${ai ? ' (AI)' : ''}`); await sleep(0);
+      try {
+        let img = await fileToImage(f.file); const [w, h] = dims(img);
+        let W = w * k, H = h * k; const lim = Math.min(1, 8192 / Math.max(W, H), Math.sqrt(64e6 / (W * H))); W *= lim; H *= lim;
+        if (ai) img = await aiImage('Tingkatkan resolusi dan ketajaman foto ini. Jangan mengubah isi, komposisi, warna, wajah, atau teks. Hanya perjelas detail dan hilangkan noise/artefak kompresi.', img);
+        let c = resample(img, W, H); if (!ai) c = sharpen(c, k === 4 ? 0.35 : 0.45);
+        const type = outType(f.file.type);
+        outs.push({ name: `${baseName(f.file.name)}-${k}x.${EXT[type]}`, blob: await toBlob(c, type, 0.93) });
+      } catch (e) { outs.push({ name: f.file.name, error: e.message }); }
+    }
+    return outs;
+  },
+});
+
+// ---------------- 8. Remove background ----------------
+function chromaKey(img, W, H) {
+  const c = resample(img, W, H); const x = c.getContext('2d'); const d = x.getImageData(0, 0, W, H); const p = d.data;
+  for (let i = 0; i < p.length; i += 4) {
+    const r = p[i], g = p[i + 1], b = p[i + 2]; const green = g - Math.max(r, b);
+    if (green > 20) { const a = Math.max(0, 255 - (green - 20) * 4); p[i + 3] = Math.min(p[i + 3], a); p[i + 1] = Math.min(g, Math.max(r, b) + 10); }
+  }
+  x.putImageData(d, 0, 0); return c;
+}
+tool({
+  id: 'remove-bg', cat: 'optimize', icon: 'removebg', name: 'Hapus latar belakang', ai: true,
+  desc: 'Pisahkan objek dari latar dengan model segmentasi di browser, hasil PNG transparan.',
+  action: 'Hapus latar',
+  mount(ctx) {
+    renderGrid(ctx);
+    ctx.side.innerHTML = `<div class="field"><span class="lbl">Metode</span><div class="choice">
+      <label><input type="radio" name="rb" value="local" checked><div><b>Di browser (gratis)</b><span>Model IS-Net via WASM. Unduhan model sekali sekitar 40 MB.</span></div></label>
+      <label><input type="radio" name="rb" value="ai"><div><b>AI (GPU server)</b><span>Model gambar menaruh objek di latar hijau, lalu dibuat transparan.</span></div></label></div></div>
+      <div class="field"><label for="rb-q">Kualitas model lokal</label><select class="inp" id="rb-q"><option value="isnet_quint8">Cepat</option><option value="isnet_fp16" selected>Seimbang</option><option value="isnet">Terbaik</option></select></div>`;
+  },
+  async run(ctx) {
+    const mode = $('input[name=rb]:checked', ctx.side).value; const outs = [];
+    let removeBackground;
+    if (mode === 'local') { busy.sub('Memuat model segmentasi...'); ({ removeBackground } = await import(CDN.imgly)); }
+    for (const [i, f] of ctx.files.entries()) {
+      const tag = `${i + 1} dari ${ctx.files.length}`; busy.sub(tag);
+      try {
+        let blob;
+        if (mode === 'local') {
+          let src = f.file;
+          if (isHeic(f.file)) { const im = await fileToImage(f.file); const [w, h] = dims(im); const [c, x] = makeCanvas(w, h); x.drawImage(im, 0, 0); src = await toBlob(c, 'image/png'); }
+          blob = await removeBackground(src, { model: $('#rb-q').value, output: { format: 'image/png' }, progress: (k, a, b) => busy.sub(`${tag}: ${k.startsWith('fetch') ? 'mengunduh model' : 'memproses'} ${b ? Math.round(a / b * 100) + '%' : ''}`) });
+        } else {
+          const img = await fileToImage(f.file); const [w, h] = dims(img);
+          const out = await aiImage('Pertahankan subjek utama persis sama (bentuk, warna, detail tepi). Ganti SELURUH latar belakang dengan warna hijau murni #00FF00 yang rata tanpa bayangan dan tanpa gradasi.', img);
+          blob = await toBlob(chromaKey(out, w, h), 'image/png');
+        }
+        outs.push({ name: `${baseName(f.file.name)}-tanpa-latar.png`, blob });
+      } catch (e) { outs.push({ name: f.file.name, error: e.message }); }
+    }
+    return outs;
+  },
+});
+
+// ---------------- 9. Watermark ----------------
+tool({
+  id: 'watermark', cat: 'security', icon: 'watermark', name: 'Watermark',
+  desc: 'Stempel teks atau logo di atas gambar. Atur huruf, transparansi, dan posisi.',
+  action: 'Tambahkan watermark',
+  async mount(ctx) {
+    renderGrid(ctx);
+    const wm = ctx.wm = { mode: 'text', pos: 8, logo: null };
+    ctx.side.innerHTML = `<div class="field"><span class="lbl">Pratinjau</span><div class="preview-box"><canvas id="wm-prev"></canvas></div></div>
+      <div class="field"><div class="seg" id="wm-mode"><button type="button" data-v="text" aria-pressed="true">Teks</button><button type="button" data-v="image" aria-pressed="false">Gambar</button></div></div>
+      <div id="wm-text"><div class="field"><label for="wm-t">Teks</label><input class="inp" id="wm-t" value="© Image V.1 2026"></div>
+        <div class="row2"><div class="field"><label for="wm-f">Huruf</label><select class="inp" id="wm-f"><option>Figtree</option><option>Bricolage Grotesque</option><option>Georgia</option><option>Anton</option></select></div>
+        <div class="field"><label for="wm-c">Warna</label><input type="color" id="wm-c" value="#ffffff"></div></div>
+        <div class="field"><label for="wm-s">Ukuran huruf</label><input type="range" id="wm-s" min="2" max="20" value="5"></div></div>
+      <div id="wm-img" class="hidden field"><label for="wm-file">File logo (PNG transparan disarankan)</label><input class="inp" type="file" id="wm-file" accept="image/*">
+        <div class="field"><label for="wm-ls">Lebar logo</label><input type="range" id="wm-ls" min="5" max="60" value="20"></div></div>
+      <div class="field"><label for="wm-o">Transparansi</label><input type="range" id="wm-o" min="5" max="100" value="55"></div>
+      <div class="field"><label for="wm-r">Rotasi: <span id="wm-rv">0</span>°</label><input type="range" id="wm-r" min="-90" max="90" value="0"></div>
+      <div class="field"><span class="lbl">Posisi</span><div style="display:flex;gap:18px;align-items:center"><div class="pos-grid" id="wm-pos">${Array.from({ length: 9 }, (_, i) => `<button type="button" aria-label="Posisi ${i + 1}" data-i="${i}" aria-pressed="${i === 8}"></button>`).join('')}</div>
+        <label class="check"><input type="checkbox" id="wm-tile"> Mosaik</label></div></div>`;
+    const prev = $('#wm-prev'); const first = await fileToImage(ctx.files[0].file);
+    const upd = () => { $('#wm-rv').textContent = $('#wm-r').value; const c = stamp(first, 700); prev.width = c.width; prev.height = c.height; prev.getContext('2d').drawImage(c, 0, 0); };
+    bindSeg($('#wm-mode'), v => { wm.mode = v; $('#wm-text').classList.toggle('hidden', v !== 'text'); $('#wm-img').classList.toggle('hidden', v !== 'image'); upd(); });
+    $$('#wm-pos button').forEach(b => b.onclick = () => { $$('#wm-pos button').forEach(x => x.setAttribute('aria-pressed', x === b)); wm.pos = +b.dataset.i; upd(); });
+    $('#wm-file').onchange = async (e) => { if (e.target.files[0]) { wm.logo = await fileToImage(e.target.files[0]); upd(); } };
+    $$('input,select', ctx.side).forEach(el => el.addEventListener('input', upd));
+    /** menempel watermark; max = batas sisi untuk pratinjau */
+    const stamp = ctx.stamp = (img, max = Infinity) => {
+      const [w0, h0] = dims(img); const s = Math.min(1, max / Math.max(w0, h0)); const W = w0 * s, H = h0 * s;
+      const [c, x] = makeCanvas(W, H); x.drawImage(img, 0, 0, W, H);
+      let mw, mh, paint;
+      if (wm.mode === 'text') {
+        const size = W * $('#wm-s').value / 100; x.font = `700 ${size}px "${$('#wm-f').value}", sans-serif`;
+        const t = $('#wm-t').value; mw = x.measureText(t).width; mh = size;
+        paint = () => { x.fillStyle = $('#wm-c').value; x.textAlign = 'center'; x.textBaseline = 'middle'; x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = size / 10; x.fillText(t, 0, 0); };
+      } else {
+        if (!wm.logo) return c; const [lw, lh] = dims(wm.logo); mw = W * $('#wm-ls').value / 100; mh = mw * lh / lw;
+        paint = () => x.drawImage(wm.logo, -mw / 2, -mh / 2, mw, mh);
+      }
+      x.globalAlpha = $('#wm-o').value / 100; const rot = $('#wm-r').value * Math.PI / 180; const m = Math.min(W, H) * 0.04;
+      const at = (cx, cy) => { x.save(); x.translate(cx, cy); x.rotate(rot); paint(); x.restore(); };
+      if ($('#wm-tile').checked) { const sx = mw * 1.8 + m, sy = mh * 3 + m; for (let yy = sy / 2; yy < H + sy; yy += sy) for (let xx = (Math.round(yy / sy) % 2 ? sx / 2 : 0); xx < W + sx; xx += sx) at(xx, yy); }
+      else { const col = wm.pos % 3, row = Math.floor(wm.pos / 3); at([m + mw / 2, W / 2, W - m - mw / 2][col], [m + mh / 2, H / 2, H - m - mh / 2][row]); }
+      return c;
+    };
+    await document.fonts.ready; upd();
+  },
+  async run(ctx) {
+    const outs = [];
+    for (const [i, f] of ctx.files.entries()) {
+      busy.sub(`${i + 1} dari ${ctx.files.length}`); await sleep(0);
+      try { const type = outType(f.file.type); outs.push({ name: `${baseName(f.file.name)}-watermark.${EXT[type]}`, blob: await toBlob(ctx.stamp(await fileToImage(f.file)), type, 0.92) }); }
+      catch (e) { outs.push({ name: f.file.name, error: e.message }); }
+    }
+    return outs;
+  },
+});
+
+// ---------------- 10. Meme generator ----------------
+function wrapLines(x, text, maxW) {
+  const words = text.split(/\s+/).filter(Boolean); const lines = []; let cur = '';
+  for (const w of words) { const t = cur ? cur + ' ' + w : w; if (x.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t; }
+  if (cur) lines.push(cur); return lines;
+}
+/** template meme orisinal, digambar dengan canvas (bukan gambar meme berhak cipta) */
+const MEME_TEMPLATES = {
+  'Polos putih': (x, W, H) => { x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); },
+  'Polos hitam': (x, W, H) => { x.fillStyle = '#111'; x.fillRect(0, 0, W, H); },
+  'Dua panel': (x, W, H) => { x.fillStyle = '#F2F4F8'; x.fillRect(0, 0, W, H / 2); x.fillStyle = '#FFE08A'; x.fillRect(0, H / 2, W, H / 2); x.fillStyle = '#1E1A3C'; x.fillRect(0, H / 2 - 6, W, 12); },
+  'Empat panel': (x, W, H) => { ['#DCE8FF', '#FFE1E1', '#E2F7E1', '#FFF2C7'].forEach((c, i) => { x.fillStyle = c; x.fillRect((i % 2) * W / 2, Math.floor(i / 2) * H / 2, W / 2, H / 2); }); x.fillStyle = '#1E1A3C'; x.fillRect(W / 2 - 5, 0, 10, H); x.fillRect(0, H / 2 - 5, W, 10); },
+  'Percakapan': (x, W, H) => { x.fillStyle = '#E8EAF0'; x.fillRect(0, 0, W, H); const b = (y, left, c) => { x.fillStyle = c; x.beginPath(); x.roundRect(left ? W * 0.06 : W * 0.4, y, W * 0.54, H * 0.14, 40); x.fill(); }; b(H * 0.2, true, '#fff'); b(H * 0.42, false, '#C9F0C2'); b(H * 0.64, true, '#fff'); },
+  'Papan tulis': (x, W, H) => { x.fillStyle = '#8B5A2B'; x.fillRect(0, 0, W, H); x.fillStyle = '#2F5D3A'; x.fillRect(W * 0.05, H * 0.05, W * 0.9, H * 0.9); x.strokeStyle = 'rgba(255,255,255,.25)'; x.lineWidth = 4; for (let i = 1; i < 5; i++) { x.beginPath(); x.moveTo(W * 0.12, H * 0.2 * i); x.lineTo(W * 0.88, H * 0.2 * i); x.stroke(); } },
+  'Grafik naik': (x, W, H) => { x.fillStyle = '#fff'; x.fillRect(0, 0, W, H); x.strokeStyle = '#D6D9E6'; x.lineWidth = 3; for (let i = 1; i < 6; i++) { x.beginPath(); x.moveTo(W * 0.1, H * 0.15 * i); x.lineTo(W * 0.9, H * 0.15 * i); x.stroke(); } x.strokeStyle = '#1FA774'; x.lineWidth = 18; x.lineJoin = 'round'; x.beginPath(); [[.1, .8], [.3, .7], [.45, .75], [.6, .45], [.75, .5], [.9, .15]].forEach(([a, b], i) => i ? x.lineTo(W * a, H * b) : x.moveTo(W * a, H * b)); x.stroke(); },
+  'Sinar matahari': (x, W, H) => { x.fillStyle = '#FFC62E'; x.fillRect(0, 0, W, H); x.fillStyle = '#FFD86B'; for (let i = 0; i < 12; i++) { x.beginPath(); x.moveTo(W / 2, H / 2); const a = i * Math.PI / 6; x.arc(W / 2, H / 2, W, a, a + Math.PI / 12); x.fill(); } },
+};
+tool({
+  id: 'meme', cat: 'create', icon: 'meme', name: 'Pembuat meme', multiple: false, mode: 'canvas', ai: true,
+  desc: 'Tulis teks atas dan bawah dengan gaya meme klasik, atau minta AI membuat caption.',
+  action: 'Simpan meme',
+  uploadExtra(el) {
+    el.innerHTML = `<p class="hint" style="margin-top:34px">atau mulai dari template</p><div class="chips" style="justify-content:center;max-width:640px">${Object.keys(MEME_TEMPLATES).map(k => `<button class="chip" type="button" data-t="${esc(k)}">${esc(k)}</button>`).join('')}</div>`;
+    $$('.chip', el).forEach(b => b.onclick = async () => {
+      const [c, x] = makeCanvas(1000, 1000); MEME_TEMPLATES[b.dataset.t](x, 1000, 1000);
+      handleFiles([new File([await toBlob(c, 'image/png')], `template-${b.dataset.t.toLowerCase().replace(/\s+/g, '-')}.png`, { type: 'image/png' })], false);
+    });
+  },
+  async mount(ctx) {
+    const img = await fileToImage(ctx.files[0].file); const [W, H] = dims(img);
+    ctx.main.innerHTML = `<div class="stage"><canvas id="mm-c" aria-label="Pratinjau meme"></canvas></div>`;
+    ctx.side.innerHTML = `<div class="field"><label for="mm-top">Teks atas</label><input class="inp" id="mm-top" value="Saat kode jalan di percobaan pertama"></div>
+      <div class="field"><label for="mm-bot">Teks bawah</label><input class="inp" id="mm-bot" value="Curiga"></div>
+      <div class="field"><label for="mm-s">Ukuran huruf</label><input type="range" id="mm-s" min="4" max="16" value="9"></div>
+      <div class="row2"><div class="field"><label for="mm-c1">Warna teks</label><input type="color" id="mm-c1" value="#ffffff"></div><div class="field"><label for="mm-c2">Warna garis</label><input type="color" id="mm-c2" value="#000000"></div></div>
+      <label class="check"><input type="checkbox" id="mm-up" checked> Huruf kapital</label>
+      <div class="ai-box"><h4>Caption dari AI</h4><div class="field" style="margin:8px 0"><input class="inp" id="mm-topic" placeholder="Topik (opsional), mis. kerja remote"></div>
+      <button class="btn-ai" type="button" id="mm-ai">Buat caption</button></div>`;
+    const cv = $('#mm-c');
+    const render = (c) => {
+      c.width = W; c.height = H; const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+      const size = Math.min(W, H) * $('#mm-s').value / 100; x.font = `${size}px Anton, Impact, "Arial Black", sans-serif`;
+      x.textAlign = 'center'; x.lineJoin = 'round'; x.lineWidth = size / 7; x.strokeStyle = $('#mm-c2').value; x.fillStyle = $('#mm-c1').value;
+      const up = $('#mm-up').checked; const fix = (t) => up ? t.toUpperCase() : t; const pad = size * 0.35;
+      const block = (t, top) => {
+        const lines = wrapLines(x, fix(t), W * 0.92); const lh = size * 1.08;
+        lines.forEach((l, i) => { const y = top ? pad + lh * (i + 1) - size * 0.12 : H - pad - lh * (lines.length - 1 - i) - size * 0.12; x.strokeText(l, W / 2, y); x.fillText(l, W / 2, y); });
+      };
+      block($('#mm-top').value, true); block($('#mm-bot').value, false); return c;
+    };
+    const upd = () => render(cv); ctx.render = render;
+    $$('input', ctx.side).forEach(el => el.addEventListener('input', upd));
+    $('#mm-ai').onclick = async () => {
+      busy.show('Menulis caption', 'Model vision melihat gambar Anda');
+      try {
+        const topic = $('#mm-topic').value.trim();
+        const r = await aiJSON(`Buat caption meme lucu berbahasa Indonesia untuk gambar ini${topic ? ' dengan topik: ' + topic : ''}. Singkat, maksimal 8 kata per baris, tidak menyinggung SARA. Format: {"top":"...","bottom":"..."}`, img);
+        $('#mm-top').value = r.top || ''; $('#mm-bot').value = r.bottom || ''; upd();
+      } catch (e) { toast(e.message, 'error'); } finally { busy.hide(); }
+    };
+    await document.fonts.load('40px Anton').catch(() => {}); upd();
+  },
+  async run(ctx) {
+    const f = ctx.files[0]; const type = f.file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+    return [{ name: `${baseName(f.file.name)}-meme.${EXT[type]}`, blob: await toBlob(ctx.render(document.createElement('canvas')), type, 0.92) }];
+  },
+});
+
+// ---------------- 11. Rotate ----------------
+tool({
+  id: 'rotate', cat: 'modify', icon: 'rotate', name: 'Putar gambar',
+  desc: 'Putar banyak gambar sekaligus, atau hanya yang berorientasi lanskap atau potret.',
+  action: 'Putar gambar',
+  mount(ctx) {
+    ctx.files.forEach(f => f.rot ??= 0);
+    const paint = (card, f) => { const im = $('img', card); if (im) im.style.transform = `rotate(${f.rot}deg)`; };
+    renderGrid(ctx, (f, card) => {
+      const row = document.createElement('div'); row.className = 'frow';
+      row.innerHTML = `<button type="button" aria-label="Putar ke kiri">↺</button><button type="button" aria-label="Putar ke kanan">↻</button>`;
+      const [l, r] = $$('button', row); l.onclick = () => { f.rot -= 90; paint(card, f); }; r.onclick = () => { f.rot += 90; paint(card, f); };
+      card.appendChild(row); card._f = f; paint(card, f);
+    });
+    if (ctx.side.dataset.built) return; ctx.side.dataset.built = 1;
+    ctx.side.innerHTML = `<div class="field"><label for="ro-filter">Terapkan ke</label><select class="inp" id="ro-filter"><option value="all">Semua gambar</option><option value="land">Hanya lanskap</option><option value="port">Hanya potret</option></select></div>
+      <div class="row2"><button class="btn" type="button" id="ro-l">↺ Putar kiri</button><button class="btn" type="button" id="ro-r">↻ Putar kanan</button></div>
+      <div class="field"><button class="btn full" type="button" id="ro-reset">Kembalikan semua</button></div>
+      <p class="note">Klik tombol di tiap kartu untuk memutar satu per satu.</p>`;
+    const all = (d) => {
+      const flt = $('#ro-filter').value;
+      $$('.fcard', ctx.main).forEach(card => { const f = card._f; if (!f.w) return; const land = f.w >= f.h; if (flt === 'all' || (flt === 'land' && land) || (flt === 'port' && !land)) { f.rot = d === 0 ? 0 : f.rot + d; paint(card, f); } });
+    };
+    $('#ro-l').onclick = () => all(-90); $('#ro-r').onclick = () => all(90); $('#ro-reset').onclick = () => all(0);
+  },
+  async run(ctx) {
+    const outs = [];
+    for (const [i, f] of ctx.files.entries()) {
+      busy.sub(`${i + 1} dari ${ctx.files.length}`); await sleep(0);
+      try {
+        const r = ((f.rot % 360) + 360) % 360;
+        if (!r) { outs.push({ name: f.file.name, blob: f.file }); continue; }
+        const img = await fileToImage(f.file); const [w, h] = dims(img); const swap = r % 180 !== 0;
+        const [c, x] = makeCanvas(swap ? h : w, swap ? w : h); x.translate(c.width / 2, c.height / 2); x.rotate(r * Math.PI / 180); x.drawImage(img, -w / 2, -h / 2);
+        const type = outType(f.file.type); outs.push({ name: `${baseName(f.file.name)}.${EXT[type]}`, blob: await toBlob(c, type, 0.93) });
+      } catch (e) { outs.push({ name: f.file.name, error: e.message }); }
+    }
+    return outs;
+  },
+});
+
+// ---------------- 12. HTML to image ----------------
+const SAMPLE_HTML = `<!doctype html>
+<html><head><style>
+  body{margin:0;font-family:Georgia,serif;background:#1E1A3C;color:#fff}
+  .card{padding:80px;min-height:520px;display:flex;flex-direction:column;justify-content:center}
+  h1{font-size:64px;margin:0 0 16px;line-height:1}
+  p{font-size:24px;opacity:.8;max-width:30ch}
+  .tag{display:inline-block;background:#FFC62E;color:#1E1A3C;padding:6px 14px;border-radius:99px;font:700 16px sans-serif;margin-bottom:24px}
+</style></head><body>
+  <div class="card"><span class="tag">Rilis baru</span><h1>HTML jadi gambar</h1><p>Tempel kode HTML Anda di sini, lalu klik Konversi.</p></div>
+</body></html>`;
+tool({
+  id: 'html', cat: 'convert', icon: 'html', name: 'HTML ke gambar', mode: 'html',
+  desc: 'Ubah kode HTML atau halaman web (URL) menjadi JPG atau PNG.',
+  action: 'Konversi ke gambar',
+  mount(ctx) {
+    ctx.main.innerHTML = `<div class="field" style="margin-top:0"><div class="seg" id="hx-mode" style="max-width:320px;background:#fff"><button type="button" data-v="code" aria-pressed="true">Kode HTML</button><button type="button" data-v="url" aria-pressed="false">URL halaman</button></div></div>
+      <div id="hx-code"><label class="lbl" for="hx-src">Kode HTML</label><textarea class="html-editor" id="hx-src" spellcheck="false">${esc(SAMPLE_HTML)}</textarea></div>
+      <div id="hx-url" class="hidden"><label class="lbl" for="hx-u">Alamat halaman</label><input class="inp" id="hx-u" type="url" placeholder="https://contoh.com" style="max-width:640px">
+      <p class="note">Browser tidak bisa memotret situs lain karena CORS, jadi mode URL memakai endpoint screenshot di server (tersedia otomatis saat dideploy di Vercel atau lewat server.js). Proses sekitar 5–20 detik.</p></div>`;
+    ctx.side.innerHTML = `<div class="row2"><div class="field"><label for="hx-w">Lebar layar (px)</label><input class="inp" id="hx-w" type="number" value="1280"></div><div class="field"><label for="hx-s">Skala</label><select class="inp" id="hx-s"><option value="1">1×</option><option value="2" selected>2× (retina)</option></select></div></div>
+      <label class="check"><input type="checkbox" id="hx-full" checked> Halaman penuh</label>
+      <div class="field"><span class="lbl">Format</span><div class="seg" id="hx-f"><button type="button" data-v="png" aria-pressed="true">PNG</button><button type="button" data-v="jpeg" aria-pressed="false">JPG</button><button type="button" data-v="svg" aria-pressed="false">SVG</button></div>
+      <small class="note">SVG dari kode HTML berisi markup aslinya (vektor, teks tetap bisa dipilih). SVG dari URL membungkus hasil tangkapan layar.</small></div>`;
+    bindSeg($('#hx-mode'), v => { $('#hx-code').classList.toggle('hidden', v !== 'code'); $('#hx-url').classList.toggle('hidden', v !== 'url'); });
+    bindSeg($('#hx-f'), () => {});
+  },
+  async run() {
+    const W = +$('#hx-w').value || 1280, scale = +$('#hx-s').value, full = $('#hx-full').checked, fmt = segVal($('#hx-f'));
+    const svg = fmt === 'svg'; const type = svg ? 'image/png' : 'image/' + fmt, ext = fmt === 'jpeg' ? 'jpg' : fmt;
+    const wrapPng = async (blob, w, h) => new Blob([`<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><image width="${w}" height="${h}" xlink:href="${await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); })}"/></svg>`], { type: 'image/svg+xml' });
+    if (segVal($('#hx-mode')) === 'url') {
+      await serverReady; const u = $('#hx-u').value.trim(); const ep = getSettings().shotEndpoint;
+      if (!/^https?:\/\//.test(u)) throw new Error('Masukkan URL lengkap yang diawali http:// atau https://');
+      if (!ep) throw new Error('Mode URL hanya tersedia di versi online.');
+      const res = await fetch(`${ep}?url=${encodeURIComponent(u)}&width=${W}&scale=${scale}&full=${full ? 1 : 0}&type=${svg ? 'png' : fmt}`);
+      if (!res.ok) throw new Error(res.status === 429 ? 'Terlalu banyak permintaan screenshot, coba lagi sebentar.' : (await res.text()).slice(0, 200) || 'Server screenshot gagal (HTTP ' + res.status + ')');
+      let blob = await res.blob(); let outExt = ext;
+      const note = res.headers.get('X-Olah-Note');
+      if (!svg && blob.type === 'image/jpeg' && ext !== 'jpg') outExt = 'jpg';
+      if (note) toast({ 'png-ke-jpeg': 'Halaman terlalu besar untuk PNG, hasil disimpan sebagai JPG.', 'kualitas-diturunkan': 'Halaman sangat panjang, kualitas JPG diturunkan agar muat.', 'dipotong': 'Halaman sangat panjang, hanya bagian atasnya yang ditangkap.' }[note] || note);
+      if (svg) { const im = await loadImg(URL.createObjectURL(blob)); blob = await wrapPng(blob, im.naturalWidth, im.naturalHeight); }
+      return [{ name: new URL(u).hostname + '.' + outExt, blob }];
+    }
+    await loadScript(CDN.h2c);
+    const fr = document.createElement('iframe'); fr.setAttribute('sandbox', 'allow-same-origin');
+    fr.style.cssText = `position:fixed;left:-20000px;top:0;width:${W}px;height:800px;border:0`;
+    fr.srcdoc = $('#hx-src').value; document.body.appendChild(fr);
+    try {
+      await new Promise(r => fr.onload = r); const doc = fr.contentDocument; await doc.fonts?.ready; await sleep(150);
+      const H = full ? Math.max(doc.documentElement.scrollHeight, doc.body?.scrollHeight || 0) : 800; fr.style.height = H + 'px'; await sleep(50);
+      if (svg) {
+        const xhtml = new XMLSerializer().serializeToString(doc.documentElement);
+        const text = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><foreignObject width="${W}" height="${H}">${xhtml}</foreignObject></svg>`;
+        const ok = !new DOMParser().parseFromString(text, 'image/svg+xml').querySelector('parsererror');
+        if (ok) return [{ name: 'html-ke-gambar.svg', blob: new Blob([text], { type: 'image/svg+xml' }) }];
+        const c = await window.html2canvas(doc.documentElement, { width: W, height: H, windowWidth: W, windowHeight: H, scale, useCORS: true, backgroundColor: null, logging: false });
+        return [{ name: 'html-ke-gambar.svg', blob: await wrapPng(await toBlob(c, 'image/png'), c.width, c.height) }];
+      }
+      const c = await window.html2canvas(doc.documentElement, { width: W, height: H, windowWidth: W, windowHeight: H, scale, useCORS: true, backgroundColor: fmt === 'jpeg' ? '#ffffff' : null, logging: false });
+      return [{ name: 'html-ke-gambar.' + ext, blob: await toBlob(c, type, 0.92) }];
+    } finally { fr.remove(); }
+  },
+});
+
+// ---------------- 13. Blur face ----------------
+let _faceDet;
+async function faceDetector() {
+  if (_faceDet) return _faceDet;
+  const { FaceDetector, FilesetResolver } = await import(CDN.mediapipe);
+  const fs = await FilesetResolver.forVisionTasks(CDN.mediapipeWasm);
+  _faceDet = await FaceDetector.createFromOptions(fs, { baseOptions: { modelAssetPath: CDN.faceModel, delegate: 'CPU' }, runningMode: 'IMAGE', minDetectionConfidence: 0.45 });
+  return _faceDet;
+}
+const iou = (a, b) => { const x1 = Math.max(a.x, b.x), y1 = Math.max(a.y, b.y), x2 = Math.min(a.x + a.w, b.x + b.w), y2 = Math.min(a.y + a.h, b.y + b.h); const i = Math.max(0, x2 - x1) * Math.max(0, y2 - y1); return i / (a.w * a.h + b.w * b.h - i); };
+/** deteksi multi-skala: gambar penuh + 2×2 ubin agar wajah kecil di foto grup ikut terdeteksi */
+async function faceBoxes(img) {
+  const det = await faceDetector(); const [W, H] = dims(img); const found = [];
+  const pass = (sx, sy, sw, sh) => {
+    const k = Math.min(1, 1024 / Math.max(sw, sh)); const [c, x] = makeCanvas(sw * k, sh * k); x.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
+    for (const d of det.detect(c).detections) { const b = d.boundingBox; found.push({ x: sx + b.originX / k, y: sy + b.originY / k, w: b.width / k, h: b.height / k, score: d.categories?.[0]?.score || 0 }); }
+  };
+  pass(0, 0, W, H);
+  const tw = W * 0.6, th = H * 0.6; for (const fx of [0, W - tw]) for (const fy of [0, H - th]) pass(fx, fy, tw, th);
+  found.sort((a, b) => b.score - a.score); const keep = [];
+  for (const f of found) if (!keep.some(k => iou(k, f) > 0.25)) keep.push(f);
+  return keep;
+}
+async function detectFaces(img) {
+  return (await faceBoxes(img)).map(f => { const px = f.w * 0.18, py = f.h * 0.28; return { x: f.x - px, y: f.y - py * 1.2, w: f.w + 2 * px, h: f.h + 2 * py, shape: 'ellipse' }; });
+}
+/** Gerbang "harus tepat 1 wajah" untuk Pas foto dan Gaya Korea. Mengembalikan kotak wajah, atau null bila ditolak. */
+async function faceGate(ctx, img, el) {
+  let faces;
+  try { faces = await faceBoxes(img); }
+  catch (e) { ctx.blocked = true; el.className = 'face-status bad'; el.innerHTML = `<b>Deteksi wajah gagal</b><span>${esc(e.message)}</span>`; return null; }
+  const [W, H] = dims(img);
+  const real = faces.filter(f => f.score >= 0.6 && Math.min(f.w, f.h) >= 0.05 * Math.min(W, H));
+  if (real.length === 1) {
+    ctx.blocked = false; el.className = 'face-status ok';
+    el.innerHTML = '<b>1 wajah terdeteksi</b><span>Foto siap diproses.</span>'; return real[0];
+  }
+  ctx.blocked = true;
+  const title = real.length ? 'Bukan foto 1 wajah' : 'Bukan gambar wajah';
+  const desc = real.length ? `Terdeteksi ${real.length} wajah. Gunakan foto yang hanya berisi 1 orang.` : 'Tidak ditemukan wajah. Gunakan foto yang memperlihatkan satu wajah dengan jelas dan menghadap kamera.';
+  el.className = 'face-status bad'; el.innerHTML = `<b>⚠ ${title}</b><span>${desc}</span>`;
+  toast(title + '. ' + desc, 'error');
+  return null;
+}
+tool({
+  id: 'blur-face', cat: 'security', icon: 'blur', name: 'Sensor wajah', multiple: false, mode: 'canvas', ai: true,
+  desc: 'Samarkan wajah secara otomatis. Tandai plat nomor atau area lain secara manual atau dengan AI.',
+  action: 'Simpan gambar',
+  async mount(ctx) {
+    const img = await fileToImage(ctx.files[0].file); const [W, H] = dims(img);
+    const st = ctx.state = { rects: [], sel: -1, draw: null };
+    ctx.main.innerHTML = `<div class="stage"><canvas id="bf-c" aria-label="Seret untuk menandai area yang disamarkan"></canvas></div>`;
+    ctx.side.innerHTML = `<div class="field"><span class="lbl">Efek</span><div class="seg" id="bf-mode"><button type="button" data-v="blur" aria-pressed="true">Blur</button><button type="button" data-v="pixel" aria-pressed="false">Pikselasi</button><button type="button" data-v="solid" aria-pressed="false">Kotak hitam</button></div></div>
+      <div class="field"><label for="bf-s">Intensitas</label><input type="range" id="bf-s" min="10" max="100" value="60"></div>
+      <div class="field"><button class="btn full" type="button" id="bf-detect">Deteksi wajah lagi</button><small class="note" id="bf-info">Mendeteksi wajah...</small></div>
+      <div class="ai-box"><h4>Plat nomor dan objek (AI)</h4><p class="note" style="margin:0 0 10px">Model vision menandai plat nomor, layar, atau dokumen berisi data pribadi.</p><button class="btn-ai" type="button" id="bf-ai">Tandai dengan AI</button></div>
+      <div class="row2"><button class="btn" type="button" id="bf-del">Hapus terpilih</button><button class="btn" type="button" id="bf-clear">Hapus semua</button></div>
+      <p class="note">Seret di gambar untuk menambah area. Klik area untuk memilihnya.</p>`;
+    const cv = $('#bf-c'); cv.width = W; cv.height = H; bindSeg($('#bf-mode'), () => draw());
+    const effect = (x, r) => {
+      const mode = segVal($('#bf-mode')), s = $('#bf-s').value / 100; const m = Math.min(r.w, r.h);
+      x.save(); x.beginPath(); r.shape === 'ellipse' ? x.ellipse(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, r.h / 2, 0, 0, 7) : x.rect(r.x, r.y, r.w, r.h); x.clip();
+      if (mode === 'solid') { x.fillStyle = '#000'; x.fill(); }
+      else if (mode === 'pixel') { const bs = Math.max(3, m * (0.04 + s * 0.16)); const [t, tx] = makeCanvas(Math.ceil(r.w / bs), Math.ceil(r.h / bs)); tx.drawImage(img, r.x, r.y, r.w, r.h, 0, 0, t.width, t.height); x.imageSmoothingEnabled = false; x.drawImage(t, r.x, r.y, r.w, r.h); }
+      else {
+        const rad = Math.max(2, m * (0.03 + s * 0.12)); const pad = rad * 2;
+        const [t, tx] = makeCanvas(r.w + pad * 2, r.h + pad * 2); tx.drawImage(img, r.x - pad, r.y - pad, t.width, t.height, 0, 0, t.width, t.height);
+        if ('filter' in x) { x.filter = `blur(${rad}px)`; x.drawImage(t, r.x - pad, r.y - pad); x.filter = 'none'; }
+        else { const k = Math.max(2, rad / 2); const [sm, sx] = makeCanvas(t.width / k, t.height / k); sx.drawImage(t, 0, 0, sm.width, sm.height); x.drawImage(sm, r.x - pad, r.y - pad, t.width, t.height); }
+      }
+      x.restore();
+    };
+    const render = (c, ui) => {
+      const x = c.getContext('2d'); x.drawImage(img, 0, 0); st.rects.forEach(r => effect(x, r));
+      if (ui) st.rects.forEach((r, i) => { x.lineWidth = Math.max(2, W / 400); x.setLineDash([x.lineWidth * 3, x.lineWidth * 2]); x.strokeStyle = i === st.sel ? '#FFC62E' : 'rgba(255,255,255,.9)'; r.shape === 'ellipse' ? (x.beginPath(), x.ellipse(r.x + r.w / 2, r.y + r.h / 2, r.w / 2, r.h / 2, 0, 0, 7), x.stroke()) : x.strokeRect(r.x, r.y, r.w, r.h); x.setLineDash([]); });
+      if (ui && st.draw) { x.strokeStyle = '#FFC62E'; x.lineWidth = Math.max(2, W / 400); const d = st.draw; x.strokeRect(d.x, d.y, d.w, d.h); }
+    };
+    const draw = () => render(cv, true);
+    ctx.exportCanvas = () => { const [c] = makeCanvas(W, H); render(c, false); return c; };
+    $('#bf-s').oninput = draw;
+    const detect = async () => {
+      $('#bf-info').textContent = 'Mendeteksi wajah...';
+      try { const faces = await detectFaces(img); st.rects = st.rects.filter(r => r.shape !== 'ellipse').concat(faces); $('#bf-info').textContent = faces.length ? `${faces.length} wajah terdeteksi dan disamarkan.` : 'Tidak ada wajah terdeteksi. Tandai area secara manual.'; }
+      catch (e) { $('#bf-info').textContent = 'Deteksi gagal: ' + e.message; }
+      draw();
+    };
+    $('#bf-detect').onclick = detect;
+    $('#bf-del').onclick = () => { if (st.sel >= 0) st.rects.splice(st.sel, 1); st.sel = -1; draw(); };
+    $('#bf-clear').onclick = () => { st.rects = []; st.sel = -1; draw(); };
+    $('#bf-ai').onclick = async () => {
+      busy.show('Mencari data sensitif', 'Model vision menganalisis gambar');
+      try {
+        const r = await aiJSON('Temukan semua plat nomor kendaraan, layar berisi data, kartu identitas, dan teks alamat/nomor telepon di foto ini. Format: {"boxes":[[ymin,xmin,ymax,xmax], ...]} skala 0-1000. Jika tidak ada, {"boxes":[]}.', img);
+        const add = (r.boxes || []).map(([y0, x0, y1, x1]) => ({ x: x0 / 1000 * W, y: y0 / 1000 * H, w: (x1 - x0) / 1000 * W, h: (y1 - y0) / 1000 * H, shape: 'rect' })).filter(b => b.w > 2 && b.h > 2);
+        st.rects.push(...add); draw(); toast(add.length ? `${add.length} area ditandai AI` : 'AI tidak menemukan data sensitif');
+      } catch (e) { toast(e.message, 'error'); } finally { busy.hide(); }
+    };
+    const pt = (e) => { const b = cv.getBoundingClientRect(); return { x: (e.clientX - b.left) * W / b.width, y: (e.clientY - b.top) * H / b.height }; };
+    let start = null;
+    cv.addEventListener('pointerdown', e => {
+      const p = pt(e); st.sel = st.rects.findLastIndex(r => p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h);
+      if (st.sel < 0) { start = p; cv.setPointerCapture(e.pointerId); } draw();
+    });
+    cv.addEventListener('pointermove', e => { if (!start) return; const p = pt(e); st.draw = { x: Math.min(start.x, p.x), y: Math.min(start.y, p.y), w: Math.abs(p.x - start.x), h: Math.abs(p.y - start.y) }; draw(); });
+    cv.addEventListener('pointerup', () => { if (st.draw && st.draw.w > 6 && st.draw.h > 6) { st.rects.push({ ...st.draw, shape: 'rect' }); st.sel = st.rects.length - 1; } st.draw = null; start = null; draw(); });
+    draw(); detect();
+  },
+  async run(ctx) {
+    const f = ctx.files[0]; const type = outType(f.file.type);
+    return [{ name: `${baseName(f.file.name)}-disensor.${EXT[type]}`, blob: await toBlob(ctx.exportCanvas(), type, 0.93) }];
+  },
+});
+
+// ---------------- 14. Pas foto ----------------
+const mmPx = (mm, dpi = 300) => Math.round(mm / 25.4 * dpi);
+/** JPEG dengan metadata 300 DPI agar tercetak pas ukurannya (tulis ke header JFIF) */
+async function jpegDpi(canvas, q = 0.95, dpi = 300) {
+  const a = new Uint8Array(await (await toBlob(canvas, 'image/jpeg', q)).arrayBuffer());
+  if (a[2] === 0xFF && a[3] === 0xE0 && String.fromCharCode(a[6], a[7], a[8], a[9]) === 'JFIF') { a[13] = 1; a[14] = dpi >> 8; a[15] = dpi & 255; a[16] = dpi >> 8; a[17] = dpi & 255; }
+  return new Blob([a], { type: 'image/jpeg' });
+}
+// head = tinggi kepala (ubun-ubun sampai dagu) terhadap tinggi foto; top = jarak ubun-ubun ke tepi atas
+const PAS = {
+  '2x3': { w: 20, h: 30, head: 0.56, top: 0.1, label: '2×3' },
+  '3x4': { w: 30, h: 40, head: 0.56, top: 0.1, label: '3×4' },
+  '4x6': { w: 40, h: 60, head: 0.52, top: 0.1, label: '4×6' },
+  'paspor': { w: 35, h: 45, head: 0.7, top: 0.08, label: 'Paspor 3,5×4,5' },
+};
+const PAS_BG = [['merah', '#D0202A', 'Merah'], ['biru', '#1F5FB4', 'Biru'], ['putih', '#FFFFFF', 'Putih']];
+/** Lembar cetak 4R (15,2 × 10,2 cm, 300 DPI) berisi sebanyak mungkin pas foto + garis potong */
+function sheet4R(photo) {
+  const gap = mmPx(2.5), pw = photo.width, ph = photo.height;
+  const fit = (SW, SH) => ({ SW, SH, cols: Math.floor((SW - gap) / (pw + gap)), rows: Math.floor((SH - gap) / (ph + gap)) });
+  const a = fit(1800, 1200), b = fit(1200, 1800); const L = a.cols * a.rows >= b.cols * b.rows ? a : b;
+  const [c, x] = makeCanvas(L.SW, L.SH); x.fillStyle = '#fff'; x.fillRect(0, 0, L.SW, L.SH);
+  const ox = (L.SW - (L.cols * (pw + gap) - gap)) / 2, oy = (L.SH - (L.rows * (ph + gap) - gap)) / 2;
+  x.strokeStyle = '#C9CCD6'; x.lineWidth = 1;
+  for (let r = 0; r < L.rows; r++) for (let k = 0; k < L.cols; k++) {
+    const px = ox + k * (pw + gap), py = oy + r * (ph + gap);
+    x.drawImage(photo, px, py); x.strokeRect(px - 0.5, py - 0.5, pw + 1, ph + 1);
+  }
+  return { canvas: c, count: L.cols * L.rows };
+}
+tool({
+  id: 'pas-foto', cat: 'modify', icon: 'pasfoto', name: 'Pas foto', multiple: false, mode: 'canvas',
+  accept: 'image/*,.heic,.heif',
+  desc: 'Buat pas foto 2×3, 3×4, 4×6, atau paspor dengan latar merah, biru, atau putih. Siap cetak 300 DPI.',
+  action: 'Buat pas foto',
+  async mount(ctx) {
+    const img = await fileToImage(ctx.files[0].file); const [W, H] = dims(img);
+    const st = ctx.state = { size: '3x4', bg: '#D0202A', cut: null, zoom: 0, shift: 0 };
+    ctx.main.innerHTML = `<div class="stage pf-stage"><canvas id="pf-c" aria-label="Pratinjau pas foto"></canvas></div>`;
+    ctx.side.innerHTML = `<div id="pf-face" class="face-status">Memeriksa wajah...</div><div id="pf-opts"></div>`;
+    const cv = $('#pf-c');
+    busy.show('Memeriksa wajah', 'Pas foto harus berisi tepat 1 wajah');
+    let face; try { face = await faceGate(ctx, img, $('#pf-face')); } finally { busy.hide(); }
+    if (!face) { cv.width = W; cv.height = H; cv.getContext('2d').drawImage(img, 0, 0); return; }
+    st.face = face;
+    $('#pf-opts').innerHTML = `
+      <div class="field"><span class="lbl">Ukuran (cm)</span><div class="seg" id="pf-size">${Object.entries(PAS).map(([k, v]) => `<button type="button" data-v="${k}" aria-pressed="${k === st.size}">${v.label}</button>`).join('')}</div></div>
+      <div class="field"><span class="lbl">Warna latar</span><div class="swatches" id="pf-bg">${PAS_BG.map(([k, c, l]) => `<button type="button" class="swatch" data-v="${c}" title="${l}" aria-label="Latar ${l}" aria-pressed="${c === st.bg}" style="background:${c}"></button>`).join('')}<input type="color" id="pf-bgc" value="#D0202A" title="Warna lain" aria-label="Warna latar lain" style="width:40px;height:34px;border:none;background:none;padding:0"></div></div>
+      <label class="check"><input type="checkbox" id="pf-cut" checked> Ganti latar belakang asli</label>
+      <div class="field"><label for="pf-zoom">Ukuran kepala</label><input type="range" id="pf-zoom" min="-20" max="20" value="0"></div>
+      <div class="field"><label for="pf-shift">Posisi naik / turun</label><input type="range" id="pf-shift" min="-15" max="15" value="0"></div>
+      <label class="check"><input type="checkbox" id="pf-sheet" checked> Sertakan lembar cetak 4R</label>
+      <p class="note">Hasil 300 DPI, siap dicetak sesuai ukuran. Gunakan foto menghadap depan dengan pencahayaan merata.</p>`;
+    const draw = () => { const c = ctx.compose(); cv.width = c.width; cv.height = c.height; cv.getContext('2d').drawImage(c, 0, 0); };
+    ctx.compose = () => {
+      const spec = PAS[st.size]; const f = st.face; const src = $('#pf-cut').checked && st.cut ? st.cut : img;
+      // Kotak BlazeFace kira-kira alis s/d dagu: perkirakan ubun-ubun & dagu
+      const crown = f.y - f.h * 0.62, chin = f.y + f.h * 1.02; const headH = (chin - crown) * (1 + st.zoom / 100);
+      const CH = headH / spec.head, CW = CH * spec.w / spec.h;
+      const sx = f.x + f.w / 2 - CW / 2, sy = crown - spec.top * CH - (st.shift / 100) * CH;
+      const k = Math.min(1, 2400 / CH); const [c1, x1] = makeCanvas(CW * k, CH * k);
+      x1.fillStyle = st.bg; x1.fillRect(0, 0, c1.width, c1.height);
+      x1.drawImage(src, -sx * k, -sy * k, W * k, H * k);
+      return resample(c1, mmPx(spec.w), mmPx(spec.h));
+    };
+    const ensureCut = async () => {
+      if (st.cut || !$('#pf-cut').checked) return;
+      busy.show('Menghapus latar belakang', 'Model berjalan di browser, pertama kali mengunduh sekitar 40 MB');
+      try {
+        const { removeBackground } = await import(CDN.imgly);
+        const blob = await removeBackground(ctx.files[0].file, { model: 'isnet_fp16', output: { format: 'image/png' }, progress: (key, a, b) => busy.sub(`${key.startsWith('fetch') ? 'Mengunduh model' : 'Memproses'} ${b ? Math.round(a / b * 100) + '%' : ''}`) });
+        st.cut = await loadImg(URL.createObjectURL(blob));
+      } catch (e) { $('#pf-cut').checked = false; toast('Latar tidak bisa dihapus: ' + e.message, 'error'); }
+      finally { busy.hide(); }
+    };
+    bindSeg($('#pf-size'), v => { st.size = v; draw(); });
+    $$('#pf-bg .swatch').forEach(b => b.onclick = () => { $$('#pf-bg .swatch').forEach(x => x.setAttribute('aria-pressed', x === b)); st.bg = b.dataset.v; draw(); });
+    $('#pf-bgc').oninput = (e) => { $$('#pf-bg .swatch').forEach(x => x.setAttribute('aria-pressed', false)); st.bg = e.target.value; draw(); };
+    $('#pf-cut').onchange = async () => { await ensureCut(); draw(); };
+    $('#pf-zoom').oninput = (e) => { st.zoom = -e.target.value; draw(); };
+    $('#pf-shift').oninput = (e) => { st.shift = +e.target.value; draw(); };
+    draw(); await ensureCut(); draw();
+  },
+  async run(ctx) {
+    if (ctx.blocked) throw new Error('Bukan gambar wajah. Pas foto harus berisi tepat 1 wajah.');
+    const st = ctx.state; const base = baseName(ctx.files[0].file.name); const photo = ctx.compose();
+    const outs = [{ name: `${base}-pasfoto-${st.size}.jpg`, blob: await jpegDpi(photo) }];
+    if ($('#pf-sheet').checked) { const sh = sheet4R(photo); outs.push({ name: `${base}-lembar-4R-${sh.count}x-${st.size}.jpg`, blob: await jpegDpi(sh.canvas) }); }
+    return outs;
+  },
+});
+
+// ---------------- 15. Gaya Korea (AI) ----------------
+const KOREA_LEVEL = {
+  natural: 'subtle and natural, like a good day with light grooming',
+  sedang: 'clearly visible but still realistic, like a professional Korean photo studio portrait',
+  idol: 'full K-pop idol photoshoot polish, while staying photorealistic',
+};
+function koreaPrompt(o) {
+  const man = o.gender === 'pria';
+  return [
+    'Edit this photo of a real person.',
+    'IDENTITY LOCK (highest priority): keep the exact same person. Keep identical face shape, jawline, cheekbones, eye shape and spacing, eyelids, nose, lips, eyebrow shape, ears, facial proportions, age, gender and ethnicity. The person must be instantly recognizable as the same individual. Do not swap, morph, or replace the face. Keep the same head pose, expression, gaze direction, framing and composition.',
+    `Only change the look to a Korean ${man ? '"oppa" style for a handsome young man' : 'K-beauty style'}, intensity ${KOREA_LEVEL[o.level]}:`,
+    '- Skin: clear, smooth, even-toned, brighter luminous "glass skin"; remove acne, blemishes, dark spots and oiliness; keep natural pores and texture, no plastic or airbrushed look.',
+    man ? '- Grooming: neat natural eyebrows, subtle healthy lip tone, clean-shaven or tidy look.' : '- Makeup: soft K-beauty makeup, gradient lip tint, natural brows, light blush.',
+    o.hair ? (man ? '- Hair: neat modern Korean men\'s hairstyle (soft two-block or comma hair), natural black or dark brown, with volume.' : '- Hair: soft, glossy Korean hairstyle with natural volume, black or dark brown.') : '- Hair: keep the original hairstyle and hair color.',
+    '- Lighting and color: soft, bright, flattering studio light, clean slightly cool Korean color grading.',
+    o.studio ? '- Background: replace with a soft, plain, light studio background.' : '- Background: keep the original background, only improve lighting slightly.',
+    'Keep the clothing unless the lighting changes it. Photorealistic photo, high detail, not a cartoon, not anime, not a painting.',
+  ].join('\n');
+}
+tool({
+  id: 'gaya-korea', cat: 'create', icon: 'korea', name: 'Gaya Korea', multiple: false, mode: 'canvas', ai: true,
+  accept: 'image/*,.heic,.heif',
+  desc: 'Ubah tampilan foto jadi gaya oppa atau K-beauty: kulit cerah dan halus, rambut ala Korea. Wajah tetap wajah Anda.',
+  action: 'Ubah ke gaya Korea',
+  async mount(ctx) {
+    const img = await fileToImage(ctx.files[0].file); const [W, H] = dims(img);
+    ctx.state = { img };
+    ctx.main.innerHTML = `<div class="stage"><canvas id="gk-c" aria-label="Foto asli"></canvas></div>`;
+    const cv = $('#gk-c'); cv.width = W; cv.height = H; cv.getContext('2d').drawImage(img, 0, 0);
+    ctx.side.innerHTML = `<div id="gk-face" class="face-status">Memeriksa wajah...</div><div id="gk-opts"></div>`;
+    busy.show('Memeriksa wajah', 'Gaya Korea butuh foto dengan tepat 1 wajah');
+    let face; try { face = await faceGate(ctx, img, $('#gk-face')); } finally { busy.hide(); }
+    if (!face) return;
+    $('#gk-opts').innerHTML = `
+      <div class="field"><span class="lbl">Gaya</span><div class="seg" id="gk-g"><button type="button" data-v="pria" aria-pressed="true">Oppa (pria)</button><button type="button" data-v="wanita" aria-pressed="false">K-beauty (wanita)</button></div></div>
+      <div class="field"><span class="lbl">Intensitas</span><div class="seg" id="gk-l"><button type="button" data-v="natural" aria-pressed="false">Natural</button><button type="button" data-v="sedang" aria-pressed="true">Sedang</button><button type="button" data-v="idol" aria-pressed="false">Idol K-pop</button></div></div>
+      <label class="check"><input type="checkbox" id="gk-hair" checked> Ubah gaya rambut ala Korea</label>
+      <label class="check" style="margin-top:8px"><input type="checkbox" id="gk-studio"> Ganti latar jadi studio</label>
+      <label class="check" style="margin-top:8px"><input type="checkbox" id="gk-ba" checked> Sertakan gambar sebelum–sesudah</label>
+      <p class="note">Diproses AI di GPU server, biasanya 10–40 detik. AI menjaga wajah semirip mungkin dengan aslinya; bila kurang mirip, coba lagi atau pilih intensitas Natural.</p>`;
+    bindSeg($('#gk-g'), () => {}); bindSeg($('#gk-l'), () => {});
+  },
+  async run(ctx) {
+    if (ctx.blocked) throw new Error('Bukan gambar wajah. Gaya Korea butuh foto dengan tepat 1 wajah.');
+    const img = ctx.state.img; const [W, H] = dims(img);
+    busy.show('Mengubah ke gaya Korea', 'AI sedang bekerja, biasanya 10–40 detik');
+    const out = await aiImage(koreaPrompt({ gender: segVal($('#gk-g')), level: segVal($('#gk-l')), hair: $('#gk-hair').checked, studio: $('#gk-studio').checked }), img);
+    // samakan ukuran dengan foto asli (maks 2048 px); bila AI mengubah rasio, pertahankan rasio AI
+    const [ow, oh] = dims(out); const k = Math.min(1, 2048 / Math.max(W, H));
+    const same = Math.abs(ow / oh - W / H) < 0.03;
+    const res = same ? resample(out, W * k, H * k) : resample(out, ow * Math.min(2, 2048 / Math.max(ow, oh)), oh * Math.min(2, 2048 / Math.max(ow, oh)));
+    const base = baseName(ctx.files[0].file.name);
+    const outs = [{ name: `${base}-gaya-korea.jpg`, blob: await toBlob(res, 'image/jpeg', 0.93) }];
+    if ($('#gk-ba').checked) {
+      const hh = Math.min(1200, res.height); const a = resample(img, W * hh / H, hh), b = resample(res, res.width * hh / res.height, hh);
+      const pad = Math.round(hh * 0.02), lab = Math.round(hh * 0.07);
+      const [c, x] = makeCanvas(a.width + b.width + pad * 3, hh + pad * 2 + lab); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+      x.drawImage(a, pad, pad); x.drawImage(b, a.width + pad * 2, pad);
+      x.fillStyle = '#1E1A3C'; x.font = `700 ${Math.round(lab * 0.5)}px Figtree, sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillText('Sebelum', pad + a.width / 2, hh + pad + lab / 2); x.fillText('Sesudah', a.width + pad * 2 + b.width / 2, hh + pad + lab / 2);
+      outs.push({ name: `${base}-sebelum-sesudah.jpg`, blob: await toBlob(c, 'image/jpeg', 0.9) });
+    }
+    return outs;
+  },
+});
+
+// Menu unggulan tampil paling depan di beranda
+const FEATURED = ['pas-foto', 'gaya-korea'];
+TOOLS.sort((a, b) => FEATURED.includes(b.id) - FEATURED.includes(a.id));
+
+// ================================================================
+// Alur aplikasi: Beranda -> Upload -> Ruang kerja -> Hasil
+// ================================================================
+const app = $('#app');
+const fileInput = $('#file-input');
+let cur = null;          // alat yang sedang dibuka
+let pendingFiles = null; // file dari "Lanjutkan dengan"
+
+$('#topnav').innerHTML = [['pas-foto', 'Pas foto'], ['gaya-korea', 'Gaya Korea'], ['compress', 'Kompres'], ['resize', 'Ubah ukuran'], ['crop', 'Potong'], ['editor', 'Editor foto'], ['remove-bg', 'Hapus latar']]
+  .map(([id, l]) => `<a href="#/${id}">${l}</a>`).join('');
+
+// Menu "Semua alat": ke-15 alat per kategori, juga dipakai di layar kecil
+const menu = $('#menu'), menuBtn = $('#menu-btn');
+menu.innerHTML = Object.entries(CATS).map(([k, l]) => `<h4>${l}</h4>` + TOOLS.filter(t => t.cat === k).map(t =>
+  `<a href="#/${t.id}" data-id="${t.id}"><span class="ico cat-${t.cat}">${ICONS[t.icon]}</span>${esc(t.name)}${t.ai ? '<span class="ai">AI</span>' : ''}</a>`).join('')).join('')
+  + `<h4>Beranda</h4><a href="#/">Lihat semua alat di beranda</a>`;
+function setMenu(open) { menu.hidden = !open; menuBtn.setAttribute('aria-expanded', open); }
+menuBtn.addEventListener('click', (e) => { e.stopPropagation(); setMenu(menu.hidden); });
+document.addEventListener('click', (e) => { if (!menu.hidden && !menu.contains(e.target)) setMenu(false); });
+menu.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) { setMenu(false); menuBtn.focus(); } });
+
+function go(id) { const h = '#/' + id; if (location.hash === h) route(); else location.hash = h; }
+function route() {
+  if (cur?.onKey) window.removeEventListener('keydown', cur.onKey);
+  const id = location.hash.replace(/^#\/?/, '');
+  const t = TOOLS.find(t => t.id === id);
+  setMenu(false); $$('a', menu).forEach(a => a.dataset.id === id && id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+  window.scrollTo(0, 0);
+  if (t) openTool(t); else renderHome();
+}
+window.addEventListener('hashchange', route);
+
+// ---------- Beranda ----------
+function renderHome(filter = 'all') {
+  cur = null; document.title = 'Image V.1 — alat gambar online';
+  app.innerHTML = `<section class="home">
+    <div class="hero"><h1>Semua alat untuk mengolah gambar.</h1>
+    <p>Kompres, ubah ukuran, potong, konversi, dan edit foto langsung di browser. File diproses di perangkat Anda. Hanya fitur bertanda AI yang mengirim gambar ke GPU server.</p></div>
+    <div class="tabs" role="group" aria-label="Kategori">${[['all', 'Semua'], ...Object.entries(CATS)].map(([k, l]) => `<button class="tab" type="button" data-k="${k}" aria-pressed="${k === filter}">${l}</button>`).join('')}</div>
+    <div class="tools">${TOOLS.filter(t => filter === 'all' || t.cat === filter).map(t => `
+      <a class="tool-card" href="#/${t.id}">${t.ai ? '<span class="ai">AI</span>' : ''}
+        <span class="ico cat-${t.cat}">${ICONS[t.icon]}</span><h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p></a>`).join('')}</div>
+    <p class="foot">Image V.1 memakai Canvas, WebAssembly, dan model yang berjalan di browser untuk sebagian besar alat. Fitur bertanda AI diproses oleh model gambar dan vision di GPU server.</p>
+  </section>`;
+  $$('.tab', app).forEach(b => b.onclick = () => renderHome(b.dataset.k));
+}
+
+// ---------- Alat ----------
+function openTool(t) {
+  cur = { tool: t, files: [] }; document.title = `${t.name} — Image V.1`;
+  if (pendingFiles) { const f = pendingFiles; pendingFiles = null; return handleFiles(f, false); }
+  if (t.mode === 'html') return showWorkspace();
+  showUpload();
+}
+function showUpload() {
+  const t = cur.tool;
+  app.innerHTML = `<section class="upload">
+    <h1>${esc(t.name)}</h1><p class="lead">${esc(t.desc)}</p>
+    <button class="btn-sun" type="button" id="pick">Pilih gambar</button>
+    <p class="hint">atau seret dan lepas ${t.multiple ? 'gambar' : 'satu gambar'} di sini, atau tempel dengan Ctrl+V</p>
+    <div id="upload-extra"></div>
+  </section>`;
+  $('#pick').onclick = () => pickFiles(t, false);
+  t.uploadExtra?.($('#upload-extra'));
+}
+function pickFiles(t, append) {
+  fileInput.accept = t.accept; fileInput.multiple = t.multiple; fileInput.value = '';
+  fileInput.onchange = () => fileInput.files.length && handleFiles([...fileInput.files], append);
+  fileInput.click();
+}
+const acceptable = (f) => /^image\//.test(f.type) || isHeic(f) || /^(jpe?g|png|webp|gif|svg|bmp|avif|tiff?|psd|psb|cr2|cr3|nef|arw|dng|raf|orf|rw2|pef|srw)$/.test(extOf(f.name));
+async function handleFiles(list, append) {
+  if (!cur || cur.tool.mode === 'html') return;
+  let files = list.filter(acceptable);
+  if (!files.length) return toast('Pilih file gambar (JPG, PNG, WEBP, GIF, SVG, HEIC, TIFF, PSD).', 'error');
+  if (cur.tool.id === 'from-jpg') { const n = files.length; files = files.filter(f => f.type === 'image/jpeg' || /^jpe?g$/.test(extOf(f.name))); if (files.length < n) toast('Alat ini hanya menerima JPG. File lain dilewati.'); if (!files.length) return; }
+  if (files.some(isRaw)) {
+    files = files.filter(f => !isRaw(f));
+    toast(`File RAW kamera belum didukung${files.length ? ' dan dilewati' : ''}. Ekspor dulu ke JPG/TIFF dari aplikasi kamera atau Lightroom.`, 'error');
+    if (!files.length) return;
+  }
+  if (!cur.tool.multiple) { files = files.slice(0, 1); append = false; }
+  // HEIC/TIFF/PSD didekode sekali ke PNG agar semua alat (dan pratinjau) bisa membacanya
+  if (files.some(needsDecode)) {
+    busy.show('Membaca file', 'HEIC, TIFF, dan PSD diubah dulu di browser');
+    const ok = [];
+    for (const f of files) {
+      if (!needsDecode(f)) { ok.push(f); continue; }
+      try { busy.sub(f.name); ok.push(new File([await decodeSpecial(f)], baseName(f.name) + '.png', { type: 'image/png' })); }
+      catch (e) { toast(`${f.name}: ${e.message}`, 'error'); }
+    }
+    busy.hide(); files = ok; if (!files.length) return;
+  }
+  const entries = await Promise.all(files.map(async file => {
+    const e = { id: crypto.randomUUID?.() || Math.random().toString(36).slice(2), file, url: URL.createObjectURL(file) };
+    if (e.url) try { const im = await loadImg(e.url); [e.w, e.h] = dims(im); } catch {}
+    return e;
+  }));
+  if (append && cur.main) { cur.files.push(...entries); cur.refresh(); return; }
+  cur.files = entries; showWorkspace();
+}
+async function showWorkspace() {
+  const t = cur.tool;
+  app.innerHTML = `<section class="work">
+    <div class="work-main" id="w-main"></div>
+    <aside class="work-side"><div class="side-head"><h2>${esc(t.name)}</h2></div>
+      <div class="side-body" id="w-side"></div>
+      <div class="side-foot"><button class="btn-sun" type="button" id="w-run">${esc(t.action)}</button></div></aside>
+  </section>`;
+  Object.assign(cur, { main: $('#w-main'), side: $('#w-side'), refresh: () => renderGrid(cur, cur.gridExtra) });
+  const runBtn = $('#w-run'); runBtn.disabled = true;
+  try { await t.mount(cur); } catch (e) { toast('Gagal menyiapkan alat: ' + e.message, 'error'); }
+  runBtn.disabled = !!cur.blocked;
+  runBtn.onclick = async () => {
+    busy.show('Memproses', 'Mohon tunggu');
+    try { const outs = await t.run(cur); busy.hide(); showResult(outs); }
+    catch (e) { busy.hide(); toast(e.message, 'error'); }
+  };
+}
+
+// ---------- Hasil ----------
+function showResult(outs) {
+  const t = cur.tool; const ok = outs.filter(o => o.blob); const errs = outs.filter(o => o.error);
+  ok.forEach(o => o.url = URL.createObjectURL(o.blob));
+  let saving = '';
+  if (t.id === 'compress' && ok.length) {
+    const b = ok.reduce((s, o) => s + o.before, 0), a = ok.reduce((s, o) => s + o.blob.size, 0);
+    saving = `<div class="saving">Hemat ${Math.max(0, Math.round((1 - a / b) * 100))}%<small>${fmtBytes(b)} menjadi ${fmtBytes(a)}</small></div>`;
+  }
+  const title = ok.length ? (ok.length > 1 ? `${ok.length} gambar sudah siap.` : 'Gambar sudah siap.') : 'Tidak ada gambar yang berhasil diproses.';
+  const next = TOOLS.filter(x => x.id !== t.id && x.mode !== 'html');
+  app.innerHTML = `<section class="result">
+    <h1>${title}</h1>
+    <p class="lead">${ok.length ? 'Unduh hasilnya atau lanjutkan dengan alat lain.' : 'Periksa pesan di bawah, lalu coba lagi.'}</p>
+    ${saving}
+    ${ok.length ? `<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center"><button class="btn-sun" type="button" id="dl-all">${ok.length > 1 ? 'Unduh semua (ZIP)' : 'Unduh gambar'}</button>${navigator.canShare ? '<button class="btn" type="button" id="share">Bagikan</button>' : ''}</div>` : ''}
+    <div class="outs">
+      ${ok.map((o, i) => `<div class="out"><img alt="" src="${o.url}"><div class="n"><b>${esc(o.name)}</b><span>${o.before ? `${fmtBytes(o.before)} → ` : ''}${fmtBytes(o.blob.size)}</span></div><button class="btn" type="button" data-i="${i}">Unduh</button></div>`).join('')}
+      ${errs.map(o => `<div class="out err"><div class="n"><b>${esc(o.name)}</b><span>${esc(o.error)}</span></div></div>`).join('')}
+    </div>
+    ${ok.length ? `<div class="continue"><h3>Lanjutkan dengan</h3><div class="chips">${next.map(x => `<button class="chip" type="button" data-t="${x.id}">${esc(x.name)}</button>`).join('')}</div></div>` : ''}
+    <button class="linkish" type="button" id="again">Mulai lagi</button>
+  </section>`;
+  $('#dl-all')?.addEventListener('click', async () => {
+    if (ok.length === 1) return downloadBlob(ok[0].blob, ok[0].name);
+    busy.show('Membuat ZIP'); try { downloadBlob(await zipOutputs(ok, t.id), `image-v1-${t.id}.zip`); } catch (e) { toast(e.message, 'error'); } finally { busy.hide(); }
+  });
+  $('#share')?.addEventListener('click', async () => {
+    const files = ok.map(o => new File([o.blob], o.name, { type: o.blob.type }));
+    if (!navigator.canShare({ files })) return toast('Browser ini tidak mendukung berbagi file. Unduh lalu bagikan manual.', 'error');
+    try { await navigator.share({ files, title: 'Hasil dari Image V.1' }); } catch (e) { if (e.name !== 'AbortError') toast(e.message, 'error'); }
+  });
+  $$('.out .btn', app).forEach(b => b.onclick = () => downloadBlob(ok[b.dataset.i].blob, ok[b.dataset.i].name));
+  $$('.continue .chip', app).forEach(b => b.onclick = () => { pendingFiles = ok.map(o => new File([o.blob], o.name, { type: o.blob.type })); go(b.dataset.t); });
+  $('#again').onclick = () => openTool(t);
+}
+
+// ---------- Seret-lepas & tempel ----------
+let dragDepth = 0;
+const canDrop = () => cur && cur.tool.mode !== 'html';
+window.addEventListener('dragenter', e => { if (canDrop() && e.dataTransfer?.types.includes('Files')) { dragDepth++; document.body.classList.add('dragging'); } });
+window.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dragging'); } });
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => {
+  e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragging');
+  if (canDrop() && e.dataTransfer.files.length) handleFiles([...e.dataTransfer.files], !!cur.main && cur.tool.multiple);
+});
+window.addEventListener('paste', e => {
+  if (!canDrop() || /INPUT|TEXTAREA/.test(document.activeElement?.tagName)) return;
+  const files = [...(e.clipboardData?.files || [])]; if (files.length) handleFiles(files, !!cur.main && cur.tool.multiple);
+});
+
+// ---------- Mulai ----------
+// Tampilkan halaman segera; deteksi server + status AI berjalan di belakang (cold start tidak membuat layar kosong)
+route();
+serverReady = (async () => {
+  if (!location.protocol.startsWith('http')) return;
+  try { const r = await fetch('api/health', { cache: 'no-store', signal: AbortSignal.timeout(8000) }); const h = r.ok ? await r.json() : {}; serverMode = h.ok === true; } catch {}
+})();
+serverReady.then(() => { checkAi(); setInterval(() => { if (!document.hidden) checkAi(); }, 5 * 60_000); });
+
+</script>
+</body>
+</html>

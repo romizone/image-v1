@@ -398,6 +398,10 @@ function makeCanvas(w, h) {
   return [c, ctx];
 }
 const dims = (img) => [img.naturalWidth || img.width, img.naturalHeight || img.height];
+// Batas aman: iOS Safari gagal diam-diam untuk kanvas di atas ~16,7 MP (4096×4096); desktop lebih longgar.
+const IS_IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const SAFE_PX = IS_IOS ? 16e6 : 50e6;
+const MAX_BYTES = 100 * 1048576;
 function toBlob(canvas, type = 'image/png', q = 0.92) {
   return new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('Gagal mengekspor gambar')), type, q));
 }
@@ -406,7 +410,10 @@ function resample(src, w, h) {
   let [sw, sh] = dims(src); let cur = src;
   w = Math.max(1, Math.round(w)); h = Math.max(1, Math.round(h));
   while (sw / 2 >= w && sh / 2 >= h) {
-    const [c, x] = makeCanvas(sw / 2, sh / 2); x.drawImage(cur, 0, 0, c.width, c.height);
+    let nw = sw / 2, nh = sh / 2;
+    // langkah pertama dari gambar raksasa jangan melewati SAFE_PX
+    if (nw * nh > SAFE_PX) { const s = Math.sqrt(SAFE_PX / (sw * sh)); nw = Math.max(w, sw * s); nh = Math.max(h, sh * s); }
+    const [c, x] = makeCanvas(nw, nh); x.drawImage(cur, 0, 0, c.width, c.height);
     cur = c; sw = c.width; sh = c.height;
   }
   const [c, x] = makeCanvas(w, h); x.drawImage(cur, 0, 0, w, h); return c;
@@ -542,10 +549,15 @@ async function orFetch(path, body) {
   if (ai.state !== 'ok') throw new Error('Fitur AI sedang tidak tersedia: ' + ai.reason + '.');
   const headers = { 'Content-Type': 'application/json' };
   if (s.apiKey) headers.Authorization = 'Bearer ' + s.apiKey;
-  const res = await fetch(s.baseUrl.replace(/\/$/, '') + path, { method: body ? 'POST' : 'GET', headers, body: body ? JSON.stringify(body) : undefined });
+  let res;
+  try { res = await fetch(s.baseUrl.replace(/\/$/, '') + path, { method: body ? 'POST' : 'GET', headers, body: body ? JSON.stringify(body) : undefined }); }
+  catch { throw new Error('Tidak bisa terhubung ke server AI. Periksa koneksi internet lalu coba lagi.'); }
   const data = await res.json().catch(() => ({}));
   if (!res.ok || data.error) {
     const code = data.error?.code || res.status;
+    // Vercel membalas teks biasa (bukan JSON) untuk body terlalu besar dan batas waktu function
+    if (res.status === 413) throw new Error('Gambar terlalu besar untuk dikirim ke AI. Perkecil gambar lalu coba lagi.');
+    if (res.status === 504) throw new Error('AI terlalu lama merespons. Coba lagi sebentar lagi.');
     if ([401, 402, 403].includes(+code)) setAi('fail', +code === 402 ? 'Kredit AI habis' : 'Key AI tidak valid');
     if (+code === 429) throw new Error('Server AI sedang sibuk, coba lagi sebentar.');
     throw new Error('AI gagal: ' + (data.error?.message || 'HTTP ' + res.status));
@@ -565,6 +577,12 @@ async function aiImage(prompt, img) {
   const url = msg.images?.[0]?.image_url?.url;
   if (!url) throw new Error('AI tidak menghasilkan gambar. Coba ubah perintahnya atau ulangi sebentar lagi.');
   return loadImg(url);
+}
+/** Samakan hasil AI dengan foto asli: rasio sama -> proporsi asli (maks 2048 px, tidak lebih kecil dari keluaran AI); rasio berubah -> rasio AI */
+function fitAiResult(out, W, H) {
+  const [ow, oh] = dims(out);
+  if (Math.abs(ow / oh - W / H) < 0.03) { const k = Math.min(2048, Math.max(W, H, ow, oh)) / Math.max(W, H); return resample(out, W * k, H * k); }
+  const k = Math.min(2, 2048 / Math.max(ow, oh)); return resample(out, ow * k, oh * k);
 }
 /** tanya model vision, harapkan JSON */
 async function aiJSON(prompt, img) {
@@ -647,6 +665,29 @@ const CATS = { optimize: 'Optimasi', create: 'Buat', modify: 'Ubah', convert: 'K
 
 const TOOLS = [];
 const tool = (t) => { TOOLS.push({ accept: 'image/*,.heic,.heif', multiple: true, mode: 'grid', ...t }); };
+// Alat wajah/AI: foto besar diperkecil (lebih cepat, aman memori), foto kecil diperbesar, terlalu kecil ditolak
+const FACE_FIT = { max: 4096, min: 512, hardMin: 128 };
+
+/** Periksa & sesuaikan resolusi saat upload. Mengembalikan { file, w, h, note? } atau melempar Error berisi peringatan. */
+async function fitUpload(file, t) {
+  if (file.size > MAX_BYTES) throw new Error(`Ukuran file ${fmtBytes(file.size)} terlalu besar. Maksimal ${fmtBytes(MAX_BYTES)}.`);
+  let img;
+  try { img = await fileToImage(file); }
+  catch { throw new Error(file.size > 15 * 1048576 ? `Gambar ${fmtBytes(file.size)} terlalu besar untuk dibuka browser ini. Perkecil dulu lalu coba lagi.` : 'File rusak atau formatnya tidak dapat dibaca browser.'); }
+  const [w, h] = dims(img);
+  if (!w || !h || /svg|gif/.test(file.type)) return { file, w, h }; // SVG vektor; GIF animasi rusak bila digambar ulang
+  const fit = t.fit || {}; const short = Math.min(w, h);
+  if (fit.hardMin && short < fit.hardMin) throw new Error(`Resolusi ${w}×${h} terlalu kecil. Minimal ${fit.hardMin} px di sisi terpendek.`);
+  let s = Math.min(1, (fit.max || Infinity) / Math.max(w, h), Math.sqrt(SAFE_PX / (w * h)));
+  if (s === 1 && fit.min && short < fit.min) s = fit.min / short;
+  if (s === 1) return { file, w, h };
+  let c;
+  if (s < 1) c = resample(img, w * s, h * s);
+  else { const [u, x] = makeCanvas(w * s, h * s); x.drawImage(img, 0, 0, u.width, u.height); c = sharpen(u, 0.25); }
+  const type = outType(file.type);
+  const out = new File([await toBlob(c, type, 0.92)], `${baseName(file.name)}.${EXT[type]}`, { type });
+  return { file: out, w: c.width, h: c.height, note: `${s < 1 ? 'diperkecil' : 'diperbesar'} otomatis dari ${w}×${h} ke ${c.width}×${c.height} px` };
+}
 
 // helper grid thumbnail standar
 function renderGrid(ctx, extra) {
@@ -1448,7 +1489,7 @@ function sheet4R(photo) {
 }
 tool({
   id: 'pas-foto', cat: 'modify', icon: 'pasfoto', name: 'Pas foto', multiple: false, mode: 'canvas',
-  accept: 'image/*,.heic,.heif',
+  accept: 'image/*,.heic,.heif', fit: FACE_FIT,
   desc: 'Buat pas foto 2×3, 3×4, 4×6, atau paspor dengan latar merah, biru, atau putih. Siap cetak 300 DPI.',
   action: 'Buat pas foto',
   async mount(ctx) {
@@ -1459,7 +1500,7 @@ tool({
     const cv = $('#pf-c');
     busy.show('Memeriksa wajah', 'Pas foto harus berisi tepat 1 wajah');
     let face; try { face = await faceGate(ctx, img, $('#pf-face')); } finally { busy.hide(); }
-    if (!face) { cv.width = W; cv.height = H; cv.getContext('2d').drawImage(img, 0, 0); return; }
+    if (!face) { const pk = Math.min(1, 1600 / Math.max(W, H)); cv.width = Math.round(W * pk); cv.height = Math.round(H * pk); cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height); return; }
     st.face = face;
     $('#pf-opts').innerHTML = `
       <div class="field"><span class="lbl">Ukuran (cm)</span><div class="seg" id="pf-size">${Object.entries(PAS).map(([k, v]) => `<button type="button" data-v="${k}" aria-pressed="${k === st.size}">${v.label}</button>`).join('')}</div></div>
@@ -1530,14 +1571,15 @@ function koreaPrompt(o) {
 }
 tool({
   id: 'gaya-korea', cat: 'create', icon: 'korea', name: 'Gaya Korea', multiple: false, mode: 'canvas', ai: true,
-  accept: 'image/*,.heic,.heif',
+  accept: 'image/*,.heic,.heif', fit: FACE_FIT,
   desc: 'Ubah tampilan foto jadi gaya oppa atau K-beauty: kulit cerah dan halus, rambut ala Korea. Wajah tetap wajah Anda.',
   action: 'Ubah ke gaya Korea',
   async mount(ctx) {
     const img = await fileToImage(ctx.files[0].file); const [W, H] = dims(img);
     ctx.state = { img };
     ctx.main.innerHTML = `<div class="stage"><canvas id="gk-c" aria-label="Foto asli"></canvas></div>`;
-    const cv = $('#gk-c'); cv.width = W; cv.height = H; cv.getContext('2d').drawImage(img, 0, 0);
+    const cv = $('#gk-c'), pk = Math.min(1, 1600 / Math.max(W, H)); // pratinjau saja, jangan kanvas resolusi penuh
+    cv.width = Math.round(W * pk); cv.height = Math.round(H * pk); cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
     ctx.side.innerHTML = `<div id="gk-face" class="face-status">Memeriksa wajah...</div><div id="gk-opts"></div>`;
     busy.show('Memeriksa wajah', 'Gaya Korea butuh foto dengan tepat 1 wajah');
     let face; try { face = await faceGate(ctx, img, $('#gk-face')); } finally { busy.hide(); }
@@ -1556,10 +1598,7 @@ tool({
     const img = ctx.state.img; const [W, H] = dims(img);
     busy.show('Mengubah ke gaya Korea', 'AI sedang bekerja, biasanya 10–40 detik');
     const out = await aiImage(koreaPrompt({ gender: segVal($('#gk-g')), level: segVal($('#gk-l')), hair: $('#gk-hair').checked, studio: $('#gk-studio').checked }), img);
-    // samakan ukuran dengan foto asli (maks 2048 px); bila AI mengubah rasio, pertahankan rasio AI
-    const [ow, oh] = dims(out); const k = Math.min(1, 2048 / Math.max(W, H));
-    const same = Math.abs(ow / oh - W / H) < 0.03;
-    const res = same ? resample(out, W * k, H * k) : resample(out, ow * Math.min(2, 2048 / Math.max(ow, oh)), oh * Math.min(2, 2048 / Math.max(ow, oh)));
+    const res = fitAiResult(out, W, H);
     const base = baseName(ctx.files[0].file.name);
     const outs = [{ name: `${base}-gaya-korea.jpg`, blob: await toBlob(res, 'image/jpeg', 0.93) }];
     if ($('#gk-ba').checked) {
@@ -1714,7 +1753,7 @@ function glowPrompt(o) {
 }
 tool({
   id: 'cerah-muda', cat: 'create', icon: 'glow', name: 'Cerah & Awet Muda', multiple: false, mode: 'canvas', ai: true,
-  accept: 'image/*,.heic,.heif',
+  accept: 'image/*,.heic,.heif', fit: FACE_FIT,
   desc: 'Cerahkan foto dan wajah, hilangkan kerut, bikin lebih muda, kurus atau gemuk. Pilih diproses di browser atau dengan AI.',
   action: 'Terapkan',
   async mount(ctx) {
@@ -1774,8 +1813,7 @@ tool({
     let res;
     if (st.mode === 'ai') {
       busy.show('Memproses dengan AI', 'Biasanya 10–40 detik');
-      const out = await aiImage(glowPrompt(o), img); const [ow, oh] = dims(out); const k = Math.min(1, 2048 / Math.max(W, H));
-      res = Math.abs(ow / oh - W / H) < 0.03 ? resample(out, W * k, H * k) : resample(out, ow * Math.min(2, 2048 / Math.max(ow, oh)), oh * Math.min(2, 2048 / Math.max(ow, oh)));
+      res = fitAiResult(await aiImage(glowPrompt(o), img), W, H);
     } else {
       busy.show('Memproses di browser', 'Resolusi penuh');
       await st.facesReady; await sleep(30); res = retouchLocal(img, st.faces, Math.min(1, Math.sqrt(24e6 / (W * H))), o);
@@ -1860,6 +1898,7 @@ function showUpload() {
     <h1>${esc(t.name)}</h1><p class="lead">${esc(t.desc)}</p>
     <button class="btn-sun" type="button" id="pick">Pilih gambar</button>
     <p class="hint">atau seret dan lepas ${t.multiple ? 'gambar' : 'satu gambar'} di sini, atau tempel dengan Ctrl+V</p>
+    <p class="hint">Maksimal ${fmtBytes(MAX_BYTES)}.${t.fit ? ` Foto di atas ${t.fit.max} px otomatis diperkecil, di bawah ${t.fit.min} px otomatis diperbesar.` : ''}</p>
     <div id="upload-extra"></div>
   </section>`;
   $('#pick').onclick = () => pickFiles(t, false);
@@ -1893,13 +1932,23 @@ async function handleFiles(list, append) {
     }
     busy.hide(); files = ok; if (!files.length) return;
   }
-  const entries = await Promise.all(files.map(async file => {
-    const e = { id: crypto.randomUUID?.() || Math.random().toString(36).slice(2), file, url: URL.createObjectURL(file) };
-    if (e.url) try { const im = await loadImg(e.url); [e.w, e.h] = dims(im); } catch {}
-    return e;
-  }));
+  // periksa satu per satu (bukan paralel) agar beberapa foto besar tidak menghabiskan memori sekaligus
+  busy.show('Memeriksa gambar', 'Menyesuaikan ukuran bila perlu');
+  const entries = [], errs = [], notes = [];
+  for (const f of files) {
+    busy.sub(f.name);
+    try {
+      const r = await fitUpload(f, cur.tool);
+      entries.push({ id: crypto.randomUUID?.() || Math.random().toString(36).slice(2), file: r.file, url: URL.createObjectURL(r.file), w: r.w, h: r.h });
+      if (r.note) notes.push(`${f.name}: ${r.note}`);
+    } catch (e) { errs.push(`${f.name}: ${e.message}`); }
+  }
+  busy.hide();
+  if (errs.length) toast([...errs, ...notes].join(' · '), 'error');
+  else if (notes.length) toast(notes.join(' · '));
+  if (!entries.length) return;
   if (append && cur.main) { cur.files.push(...entries); cur.refresh(); return; }
-  cur.files = entries; showWorkspace();
+  cur.files = entries; cur.fitNotes = notes; showWorkspace();
 }
 async function showWorkspace() {
   const t = cur.tool;
@@ -1911,8 +1960,10 @@ async function showWorkspace() {
   </section>`;
   Object.assign(cur, { main: $('#w-main'), side: $('#w-side'), refresh: () => renderGrid(cur, cur.gridExtra) });
   const runBtn = $('#w-run'); runBtn.disabled = true;
-  try { await t.mount(cur); } catch (e) { toast('Gagal menyiapkan alat: ' + e.message, 'error'); }
+  try { await t.mount(cur); } catch (e) { cur.blocked = true; busy.hide(); toast('Gagal menyiapkan alat: ' + e.message, 'error'); }
   runBtn.disabled = !!cur.blocked;
+  // info penyesuaian ukuran tetap terlihat (toast bisa tertimpa pesan lain, mis. hasil cek wajah)
+  if (cur.fitNotes?.length) cur.side.insertAdjacentHTML('afterbegin', `<p class="note" style="margin:0 0 12px">ⓘ Gambar ${esc(cur.fitNotes.join('; '))}.</p>`);
   runBtn.onclick = async () => {
     busy.show('Memproses', 'Mohon tunggu');
     try { const outs = await t.run(cur); busy.hide(); showResult(outs); }
